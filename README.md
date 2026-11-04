@@ -99,3 +99,11 @@ DB reset: `rm blog.db && cargo run` (migrations re-apply on boot).
 - No auth on `/posts/new` — anyone can post announcements. Add admin login before launch.
 - Placeholder team names, sponsor logos (text), contact phone.
 - `static/` is empty; add `logo.svg`, images, favicon and reference via `/static/...`.
+
+## 7. React frontend
+
+The `frontend/` directory contains the separate Vite/React client. It currently
+runs against its built-in mock server by default (`VITE_USE_MOCK=true`). The Rust
+server in this repository serves Tera pages and does not yet expose the `/api`
+contract used by the React client, so set `VITE_USE_MOCK=false` only after the
+corresponding API handlers and session/CORS configuration have been added.
