@@ -102,8 +102,19 @@ DB reset: `rm blog.db && cargo run` (migrations re-apply on boot).
 
 ## 7. React frontend
 
-The `frontend/` directory contains the separate Vite/React client. It currently
-runs against its built-in mock server by default (`VITE_USE_MOCK=true`). The Rust
-server in this repository serves Tera pages and does not yet expose the `/api`
-contract used by the React client, so set `VITE_USE_MOCK=false` only after the
-corresponding API handlers and session/CORS configuration have been added.
+The `frontend/` directory contains the Vite/React client and is served at the
+site root by the Rust server after it is built. Announcement CRUD remains
+available under `/posts`.
+
+```bash
+cd frontend
+npm ci
+npm run build
+cd ..
+cargo run
+```
+
+The client currently runs against its built-in mock data by default
+(`VITE_USE_MOCK=true`), so the complete demo works without API handlers. Set
+`VITE_USE_MOCK=false` only after the corresponding `/api` handlers and
+session/CORS configuration have been added to the Rust server.
