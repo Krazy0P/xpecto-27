@@ -1,0 +1,57 @@
+/* ===== Neura 3D background + intro (replaces the old photo / parallax / embers background) ===== */
+.neura-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; transition: opacity .8s ease; }
+.neura-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.neura-vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 50%, transparent 38%, rgba(3,3,10,.82) 100%); }
+.neura-thread-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; opacity: .42; }
+.neura-thread-field i { position: absolute; left: var(--thread-x); top: var(--thread-y); width: 1px; height: clamp(80px, 15vw, 220px); transform: rotate(var(--thread-r)); transform-origin: top center; background: linear-gradient(180deg, rgba(105,235,224,0), rgba(105,235,224,.6) 35%, rgba(171,111,255,.5) 68%, rgba(255,111,181,0)); filter: drop-shadow(0 0 5px rgba(105,235,224,.3)); animation: thread-drift 8s ease-in-out var(--thread-delay) infinite alternate; }
+@keyframes thread-drift { from { opacity: .25; translate: -8px -4px; } to { opacity: .85; translate: 9px 7px; } }
+
+/* intro overlay */
+.neura-overlay { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+.neura-boot { position: absolute; left: max(5vw, 16px); top: 24px; padding: .45rem .7rem; border: 1px solid rgba(150,220,230,.5); background: rgba(2,8,18,.78); box-shadow: 0 8px 24px rgba(0,0,0,.35); font: 600 .78rem/1.9 'Orbitron', monospace; letter-spacing: .12em; color: #d8f7f7; text-shadow: 0 0 7px rgba(90,220,220,.55); }
+.neura-boot div { animation: neura-in .3s both; }
+@keyframes neura-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.neura-skip { position: absolute; top: 1rem; right: 1rem; z-index: 20; pointer-events: auto; } /* above the letterbox bars so it stays visible through the whole intro */
+.neura-title { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); width: max-content; max-width: 96vw; padding: .4rem .8rem .55rem; border: 1px solid rgba(150,220,230,.5); background: rgba(2,8,18,.7); box-shadow: 0 10px 30px rgba(0,0,0,.42); }
+.neura-title .fire-word { background: linear-gradient(180deg, #e9ffff 0%, #9ee9e4 48%, #5bb9c4 100%); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 0 2px rgba(0,0,0,.95)) drop-shadow(0 0 8px rgba(109,230,218,.45)); }
+.neura-title .fire-word.fw-back { background: none; color: #020812; -webkit-text-fill-color: #020812; text-shadow: 0 1px 0 rgba(255,255,255,.7), 0 4px 0 #020812, 0 8px 12px rgba(0,0,0,.8); filter: none; }
+
+/* page UI stays hidden (and unscrollable) while the intro plays, then fades in */
+html.neura-intro { overflow: hidden; }
+.app-shell > *:not(.neura-keep) { transition: opacity 1.35s cubic-bezier(.22,.8,.28,1), transform 1.35s cubic-bezier(.22,.8,.28,1), filter 1.35s cubic-bezier(.22,.8,.28,1); }
+html.neura-intro .app-shell > *:not(.neura-keep) { opacity: 0; transform: translateY(14px); filter: blur(7px); pointer-events: none; }
+
+/* intro title pop-up: XPECTO’27 + subtitle */
+.neura-title { text-align: center; transition: opacity .4s ease; }
+.neura-title.out { opacity: 0; }
+.neura-sub { margin-top: .2rem; font: 700 clamp(.75rem, 2.8vw, 1.15rem) 'Orbitron', sans-serif; letter-spacing: .38em; text-transform: uppercase; color: #d8f7f7; text-shadow: 0 0 10px rgba(90,220,220,.6); animation: neura-in .8s 1.3s both; }
+
+/* cinematic layer: film grain, letterbox bars, anamorphic streak */
+.neura-grain { position: absolute; inset: -50%; pointer-events: none; opacity: .1; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"); animation: neura-grain .7s steps(6) infinite; }
+@keyframes neura-grain { 0% { transform: translate(0,0) } 20% { transform: translate(-3%,2%) } 40% { transform: translate(2%,-3%) } 60% { transform: translate(-2%,-1%) } 80% { transform: translate(3%,3%) } 100% { transform: translate(0,0) } }
+.neura-bars { position: fixed; left: 0; right: 0; height: 12vh; background: #000; z-index: 5; pointer-events: none; animation: neura-bars 9.4s ease-in-out both; }
+.neura-bars.top { top: 0; } .neura-bars.bottom { bottom: 0; }
+@keyframes neura-bars { 0% { transform: scaleY(0) } 8% { transform: scaleY(1) } 80% { transform: scaleY(1) } 100% { transform: scaleY(0) } }
+.neura-bars.top { transform-origin: top; } .neura-bars.bottom { transform-origin: bottom; }
+.neura-streak { position: fixed; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1px; z-index: 4; pointer-events: none; opacity: 0; background: linear-gradient(90deg, transparent, rgba(255,190,90,.8) 30%, rgba(255,214,120,.95) 50%, rgba(255,190,90,.8) 70%, transparent); box-shadow: 0 0 24px 6px rgba(255,170,60,.45); animation: neura-streak 1.5s 5s ease-out both; }
+@keyframes neura-streak { 0% { opacity: 0; transform: scaleX(.05) } 12% { opacity: 1; transform: scaleX(1) } 100% { opacity: 0; transform: scaleX(1.1) } }
+
+/* title is found inside the particle: zooms out of it */
+.neura-title .fire-wrap { animation: neura-dive 2.2s cubic-bezier(.16,.8,.2,1) both; }
+@keyframes neura-dive { 0% { opacity: 0; transform: scale(.02); filter: blur(22px) } 40% { opacity: 1 } 100% { opacity: 1; transform: none; filter: none } }
+
+/* blast title: chunky gold-to-magenta lettering with purple extrusion */
+.neura-title { border: 0 !important; background: none !important; box-shadow: none !important; padding: 0 !important; text-align: center; }
+.xp-logo, .xp-sub { font-family: 'Orbitron', 'Segoe UI', sans-serif; font-weight: 900; white-space: nowrap; background: linear-gradient(180deg,#ffe94d 0%,#ffb41f 38%,#ff5a6e 72%,#d23bb5 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 2px #3a0c6b; paint-order: stroke fill;
+  filter: drop-shadow(1px 1px 0 #5b21b6) drop-shadow(2px 2px 0 #5b21b6) drop-shadow(3px 3px 0 #4c1a9a) drop-shadow(4px 4px 0 #4c1a9a) drop-shadow(5px 5px 0 #3b1285) drop-shadow(6px 7px 0 #2e0e6e) drop-shadow(0 0 22px rgba(255,150,40,.65)); }
+.xp-logo { font-size: clamp(2.3rem, 11.5vw, 6.6rem); line-height: 1; letter-spacing: .02em; animation: xp-pop 1s cubic-bezier(.2,1.4,.3,1) both; }
+.xp-sub { display: inline-block; margin-top: .5rem; font-size: clamp(.9rem, 4.1vw, 2.2rem); letter-spacing: .06em; animation: xp-pop .9s .25s cubic-bezier(.2,1.4,.3,1) both; }
+@keyframes xp-pop { 0% { transform: skewX(-8deg) scale(.05); opacity: 0 } 45% { opacity: 1 } 62% { transform: skewX(-8deg) scale(1.22) } 82% { transform: skewX(-8deg) scale(.96) } 100% { transform: skewX(-8deg) scale(1); opacity: 1 } }
+.neura-flash { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(255,190,80,.75), rgba(255,90,40,.25) 45%, transparent 70%); animation: neura-flash .7s 5s ease-out both; }
+@keyframes neura-flash { 0% { opacity: 0 } 12% { opacity: 1 } 100% { opacity: 0 } }
+
+/* title = the supplied logo artwork, two lines that pop in one after the other */
+.neura-title { width: min(88vw, 860px); }
+.xp-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 18px rgba(255,140,40,.55)); animation: xp-img-pop 1s cubic-bezier(.2,1.4,.3,1) both; }
+.xp-img-sub { width: 96%; margin: .9rem auto 0; animation-duration: .9s; animation-delay: .25s; }
+@keyframes xp-img-pop { 0% { transform: scale(.05); opacity: 0 } 45% { opacity: 1 } 62% { transform: scale(1.18) } 82% { transform: scale(.97) } 100% { transform: scale(1); opacity: 1 } }
