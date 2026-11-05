@@ -19,7 +19,6 @@ export default function AppRoutes({ location }) {
   return (
     <Routes location={location}>
       <Route path="/" element={<About />} />
-      <Route path="/about" element={<About />} />
       <Route path="/events" element={<Events />} />
       <Route path="/events/:id" element={<EventDetail />} />
       <Route path="/workshops" element={<Workshops />} />

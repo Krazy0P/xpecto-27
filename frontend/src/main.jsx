@@ -7,9 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import './styles/anime.css';
 import './styles/animations.css';
-import './styles/redesign.css'; // immersive redesign layer
-import './styles/neura.css'; // 3D Neura background + intro (loads last)
-import './styles/spacetime.css'; // broken space-time theme (overrides)
+import './styles/redesign.css'; // immersive redesign layer (loads last)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

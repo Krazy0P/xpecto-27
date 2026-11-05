@@ -34,7 +34,7 @@ export default function EventDetail() {
       <Link to="/events">← All events</Link>
       <Block className="detail-head">
         {isAdmin && <Link to={`/admin?tab=events&id=${e.id}`} className="edit-pencil" aria-label="Edit event">✎</Link>}
-        {e.imageUrl ? <img src={e.imageUrl} alt={e.name} className="detail-img" /> : <div className="detail-img ph st-card-ph"><span>XP'27</span></div>}
+        {e.imageUrl ? <img src={e.imageUrl} alt={e.name} className="detail-img" /> : <div className="detail-img ph" aria-hidden="true" lang="ja">競</div>}
         <div>
           <h1 className="page-title">{e.name}</h1>
           <p className="chip">{e.category}</p>

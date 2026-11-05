@@ -2,6 +2,7 @@
 :root { --nav-h: 76px; --frame: rgba(25,230,255,.32); }
 
 /* --- Cinematic background stack --- */
+.site-bg { background: linear-gradient(rgba(7,6,15,.45), rgba(7,6,15,.82)), url('../assets/hands.jpg') center / cover no-repeat; }
 .bg-fog { top: -20vh; height: 140vh;
   background: radial-gradient(ellipse 70% 16% at 30% 38%, rgba(140,110,255,.14), transparent 70%), radial-gradient(ellipse 60% 14% at 75% 70%, rgba(25,230,255,.1), transparent 70%); }
 .bg-vignette { top: 0; bottom: 0; will-change: auto; background: radial-gradient(ellipse at 50% 45%, transparent 42%, rgba(4,3,10,.78) 100%); }
@@ -75,11 +76,6 @@
 .hero-title { margin: 0; font: 800 clamp(3.2rem, 14vw, 9.5rem)/1 'Orbitron'; letter-spacing: .06em; color: #fff; text-shadow: 0 0 30px rgba(255,214,10,.75), 0 0 80px rgba(255,46,147,.4), 0 4px 0 rgba(0,0,0,.4); }
 .hero-tag { margin: 0; font: 600 clamp(1rem, 3.4vw, 1.5rem) 'Orbitron'; letter-spacing: .12em; color: var(--volt); text-shadow: 0 0 16px rgba(25,230,255,.7), 0 2px 10px #000; }
 .hero-meta { margin: 0; font-weight: 700; letter-spacing: .08em; color: #fff; }
-.home-text-box { width: fit-content; max-width: 100%; padding: .35rem .75rem; background: rgba(4,8,20,.78); border: 1px solid rgba(255,255,255,.2); box-shadow: 0 8px 22px rgba(0,0,0,.24); backdrop-filter: blur(5px); }
-.home-text-box > * { margin-block: 0; }
-.home-section-label { width: 100%; padding: .25rem 0; background: rgba(4,8,20,.58); }
-.home-section-label .sec-title { margin: 0; }
-.about-text > p, .about-text > h2, .about-text > h3, .about-text > ul, .about-text > ol, .about-text > blockquote { width: fit-content; max-width: 100%; margin-block: .7rem; padding: .35rem .65rem; background: rgba(4,8,20,.72); border: 1px solid rgba(255,255,255,.15); }
 .hero-img { max-width: min(100%, 520px); max-height: 220px; object-fit: cover; border: 1px solid var(--frame); }
 .scroll-cue { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: .4rem; color: #fff; font: 700 .75rem 'Orbitron'; letter-spacing: .3em; text-transform: uppercase; }
 .scroll-cue i { width: 2px; height: 42px; background: linear-gradient(var(--fire), transparent); transform-origin: top; animation: cue 1.8s ease-in-out infinite; }
@@ -87,8 +83,8 @@
 
 /* Stats and contact: no boxes, separated by hairlines */
 .stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 0; margin: 2.2rem 0; }
-.stat { min-width: 150px; padding: .55rem 1.5rem .65rem; text-align: center; border: 1px solid rgba(255,255,255,.24); background: rgba(4,8,20,.78); box-shadow: 0 8px 22px rgba(0,0,0,.24); backdrop-filter: blur(5px); text-shadow: 0 2px 12px #000; }
-.stat:first-child { border-left: 1px solid rgba(255,255,255,.24); } .stat b { font-size: clamp(1.8rem, 5vw, 2.8rem); color: #fff; text-shadow: 0 0 20px rgba(255,214,10,.7); }
+.stat { min-width: 150px; padding: .3rem 2.2rem; text-align: center; border-left: 1px solid rgba(255,255,255,.2); text-shadow: 0 2px 12px #000; }
+.stat:first-child { border-left: 0; } .stat b { font-size: clamp(1.8rem, 5vw, 2.8rem); color: #fff; text-shadow: 0 0 20px rgba(255,214,10,.7); }
 .stat span { text-transform: uppercase; letter-spacing: .18em; font-size: .8rem; color: var(--volt); }
 .contact-line { margin: 3rem 0 1rem; text-align: center; text-shadow: 0 2px 12px #000; }
 @media (max-width: 560px) { .stat { min-width: 50%; border-left: 0; } .scroll-cue span { display: none; } }
@@ -121,9 +117,7 @@
 /* About: outlined word + text on the scene with a neon rule */
 .about-split { display: grid; gap: 1.2rem 3rem; margin: 3rem 0; align-items: start; }
 @media (min-width: 900px) { .about-split { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); } }
-.about-split > .home-text-box { width: 100%; min-width: 0; overflow: visible; text-align: center; }
-.about-h { margin: 0; font: 800 clamp(2rem, 12vw, 5rem)/1 'Orbitron'; letter-spacing: .01em; text-transform: uppercase; color: #f1ffff; -webkit-text-stroke: .7px rgba(255,255,255,.95); text-shadow: 0 2px 0 #071321, 0 0 18px rgba(25,230,255,.65); white-space: nowrap; }
-@media (min-width: 900px) { .about-h { font-size: clamp(2rem, 5vw, 4.5rem); } }
+.about-h { margin: 0; font: 800 clamp(3rem, 10vw, 6.5rem)/1 'Orbitron'; letter-spacing: .06em; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.75); text-shadow: 0 0 30px rgba(255,214,10,.45); }
 .about-text { padding-left: 1.4rem; border-left: 2px solid var(--fire); font-size: 1.15rem; text-shadow: 0 2px 12px #000; }
 .about-text p { max-width: 70ch; } .about-text ul { list-style: disc; padding-left: 1.4rem; } .about-text a { text-decoration: underline; }
 .hl .fcard-body { padding-top: 30px; } .hl { color: #fff; }
@@ -224,89 +218,3 @@
 .fcard-art { margin: 24px 16px 0; } .fcard-prize { margin: 0 16px 22px; }
 .fcard .edit-pencil { top: 26px; right: 30px; }
 @media (max-width: 700px) { .fgrid { padding-inline: 22px; } } /* room for the frame's outer edge on phones */
-
-/* Mess page: framed poster image for pine / oak / alder */
-.mess-opt .card-img.mess-frame { height: auto; aspect-ratio: 470 / 632; max-height: 340px; width: auto; max-width: 100%; margin: 0 auto .6rem; display: block; object-fit: contain; }
-
-/* Mess frames: the mess name is written on the slate (replaces the old baked-in text) */
-.mess-art { position: relative; display: block; width: fit-content; max-width: 100%; margin: 0 auto .6rem; container-type: inline-size; }
-.mess-art .card-img.mess-frame { margin: 0; }
-.mess-name { position: absolute; left: 51.6%; top: 51.4%; width: 66%; transform: translate(-50%, -50%) rotate(-3deg); display: flex; flex-direction: column; align-items: center; line-height: .95; text-align: center; font: 400 18cqw/.95 'Kaushan Script', 'Segoe Script', 'Brush Script MT', cursive; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.45); pointer-events: none; }
-.mess-name span:last-child:not(:first-child) { font-size: .62em; margin-top: .12em; }
-
-/* Mess cards: same gold frame as the event cards */
-.mess-opt { padding: 10px; border: 22px solid transparent; border-image: url('../assets/frame.webp') 120 / 48px / 18px stretch; background: none; clip-path: none; box-shadow: none; text-shadow: none; transition: filter .25s; }
-.mess-opt:hover { filter: drop-shadow(0 0 14px rgba(255,214,10,.45)); }
-.mess-opt.sel { background: none; box-shadow: none; filter: drop-shadow(0 0 18px rgba(255,214,10,.75)); }
-.mess-in { display: block; padding: 12px 10px 14px; background: rgba(10,8,26,.84); box-shadow: inset 0 0 0 1px rgba(25,230,255,.4); }
-.mess-opt.sel .mess-in { box-shadow: inset 0 0 0 2px var(--fire), inset 0 0 30px rgba(255,214,10,.22); }
-.mess-opt .card-img.mess-frame { aspect-ratio: 386 / 560; border: 1px solid rgba(255,255,255,.18); }
-
-/* About page: sci-fi frames around the XPECTO title and the About heading */
-.frame-hud { position: relative; container-type: inline-size; display: grid; place-items: center; background: no-repeat center / 100% 100%; filter: drop-shadow(0 0 14px rgba(120,100,255,.45)); }
-.frame-xpecto { width: min(100%, 780px); aspect-ratio: 700 / 150; background-image: url('../assets/frame-xpecto.png'); }
-.frame-about { width: min(100%, 560px); aspect-ratio: 670 / 145; margin-inline: auto; background-image: url('../assets/frame-about.png'); }
-.frame-xpecto .hero-title { font: italic 800 8.6cqw/1 'Orbitron'; letter-spacing: .03em; padding-left: 4%; transform: skewX(-8deg); color: #f3ecff; text-shadow: 0 0 14px rgba(150,120,255,.85), 0 0 2px #fff; }
-.frame-about .about-h { font-size: 7.4cqw; letter-spacing: .22em; padding-left: .22em; color: #f1f3ff; -webkit-text-stroke: 0; text-shadow: 0 0 12px rgba(120,150,255,.75); }
-
-/* Sponsors page heading in the same sci-fi orbit frame */
-.frame-sponsors { width: min(100%, 760px); aspect-ratio: 1100 / 232; margin: 0 auto 1.5rem; background-image: url('../assets/frame-sponsors.png'); }
-.frame-sponsors .page-title { margin: 0; padding: 1.2% 0 0 2%; font: 800 6.6cqw/1 'Orbitron'; letter-spacing: .15em; text-transform: uppercase; color: #eef3ff; text-shadow: 0 0 10px rgba(120,160,255,.9), 0 0 24px rgba(90,110,255,.6); }
-.frame-sponsors .page-title::after { display: none; }
-
-/* ===== Phones only: slightly smaller overall display, slimmer event + mess frames ===== */
-@media (max-width: 640px) {
-  html { font-size: 14px; }
-  .page { padding: 1rem .6rem; }
-  /* events */
-  .fgrid { max-width: 290px; gap: 1.6rem; padding-inline: 16px; margin-inline: auto; }
-  .fcard { padding: 4px; border-width: 6px; border-image-width: 32px; border-image-outset: 12px; }
-  .fcard-in { clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px); }
-  .fcard-art { margin: 18px 12px 0; } .fcard-art .card-img { height: 118px; }
-  .fcard-body { padding: .6rem .8rem .3rem; }
-  .fcard-actions { padding: .4rem .7rem .7rem; }
-  .fcard-prize { margin: 0 12px 16px; padding: .35rem .7rem; }
-  /* mess registrations */
-  .grid-cards[role="radiogroup"] { max-width: 290px; gap: 1.6rem; padding-inline: 16px; margin-inline: auto; }
-  .mess-opt { padding: 4px; border-width: 6px; border-image-width: 32px; border-image-outset: 12px; }
-  .mess-in { padding: 8px 6px 10px; }
-  .mess-opt .card-img.mess-frame { max-height: 230px; margin-bottom: .4rem; }
-}
-
-/* ===== Phones only: smaller workshops + team pages ===== */
-@media (max-width: 640px) {
-  .wrow { gap: .8rem; padding: 1rem .2rem; }
-  .wrow h3 { font-size: 1.15rem; } .wrow p { font-size: .9rem; margin: .15rem 0; }
-  .wdate { min-width: 56px; font-size: .7rem; } .wdate b { font-size: 1.9rem; }
-  .wfee b { font-size: 1.25rem; } .wmain .seats { max-width: 200px; }
-  .grid-cards:has(> .member) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
-  .member { padding: .3rem; }
-  .member-photo { width: 110px; height: 128px; }
-  .member[data-role="Convenor"], .member[data-role="Co-Convenor"] { grid-column: 1 / -1; }
-  .member[data-role="Convenor"] .member-photo, .member[data-role="Co-Convenor"] .member-photo { width: 136px; height: 158px; }
-  .member h3 { font-size: 1rem; margin: .4rem 0 .2rem; } .member p { font-size: .85rem; }
-}
-
-/* ===== Phones only: events page a little smaller still ===== */
-@media (max-width: 640px) {
-  .fgrid { max-width: 262px; gap: 1.3rem; }
-  .fcard { border-image-width: 28px; border-image-outset: 10px; }
-  .fcard-art { margin: 16px 10px 0; } .fcard-art .card-img { height: 100px; }
-  .fcard-body { padding: .45rem .6rem .2rem; }
-  .fcard-body h3 { font-size: .95rem; margin-bottom: .25rem; }
-  .fcard-body p { font-size: .8rem; margin: .12rem 0; }
-  .fcard-actions { gap: .4rem; padding: .3rem .5rem .55rem; }
-  .fcard-actions .ghost-btn { padding: .4rem .7rem; font-size: .72rem; }
-  .fcard-prize { margin: 0 10px 14px; padding: .28rem .6rem; font-size: .64rem; } .fcard-prize b { font-size: .82rem; }
-  .date-badge { transform: scale(.85); transform-origin: top left; }
-}
-
-/* Mess cards: fruit & vegetable frame; name, description and price sit on the slate (live text, edited by admin) */
-.mess-opt { container-type: inline-size; position: relative; display: block; width: 100%; max-width: 340px; margin-inline: auto; aspect-ratio: 1158 / 1620; padding: 0; border: 0; border-image: none; clip-path: none; background: url('../assets/mess-food-frame.jpg') center / 100% 100% no-repeat; box-shadow: 0 8px 22px rgba(0,0,0,.45); transition: filter .25s, transform .25s; }
-.mess-opt:hover { filter: brightness(1.07); }
-.mess-opt.sel { filter: none; box-shadow: 0 0 0 3px var(--fire), 0 0 22px rgba(255,214,10,.65); }
-.mess-opt .mess-in { position: absolute; left: 18%; top: 21%; width: 70%; height: 64%; padding: 0; background: none; box-shadow: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4cqw; text-align: center; }
-.mess-opt h3 { margin: 0; font: 400 13cqw/1 'Kaushan Script', 'Segoe Script', 'Brush Script MT', cursive; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.5); transform: rotate(-2deg); }
-.mess-opt p { margin: 0; font-size: 4.3cqw; line-height: 1.35; color: #e8e8ee; }
-.mess-opt .mess-price b { font: 800 6.5cqw 'Orbitron'; color: var(--fire); }
-.mess-opt .mess-pic { max-width: 46%; max-height: 22%; object-fit: contain; border-radius: 6px; }

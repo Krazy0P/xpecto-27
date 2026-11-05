@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteConnectOptions, FromRow, SqlitePool};
 use std::{net::SocketAddr, str::FromStr, sync::Arc};
 use tera::{Context, Tera};
-use tower_http::services::{ServeDir, ServeFile};
+use tower_http::services::ServeDir;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use uuid::Uuid;
 
@@ -70,15 +70,16 @@ async fn main() -> anyhow::Result<()> {
     let state = Arc::new(AppState { db: pool, tera });
 
     let app = Router::new()
+        .route("/", get(home))
+        .route("/home", get(home))
+        .route("/competitions", get(competitions))
+        .route("/workshops", get(workshops))
+        .route("/about", get(about))
         .route("/posts", get(list_posts).post(create_post))
         .route("/posts/new", get(new_post_form))
         .route("/posts/:id", get(show_post).put(update_post).delete(delete_post).post(update_or_delete_post))
         .route("/posts/:id/edit", get(edit_post_form))
         .nest_service("/static", ServeDir::new("static"))
-        .fallback_service(
-            ServeDir::new("frontend/dist")
-                .fallback(ServeFile::new("frontend/dist/index.html")),
-        )
         .with_state(state);
 
     let port = std::env::var("PORT")

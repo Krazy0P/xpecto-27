@@ -96,7 +96,7 @@ fieldset.field { border: 1px solid rgba(25,230,255,.3); } fieldset legend { colo
 
 /* ---- Stage 7: polish & responsive ---- */
 .page { position: relative; }
-/* decorative watermark removed to match broken space-time theme */
+.page::before { content: '祭'; position: absolute; top: 0; right: 1rem; font: 12rem/1 'Dela Gothic One'; color: rgba(255,46,147,.06); pointer-events: none; z-index: -1; } /* decorative kanji */
 .page-title { position: relative; display: inline-block; } .page-title::after { content: ''; display: block; height: 4px; margin-top: .3rem; background: linear-gradient(90deg, var(--fire), var(--neon), transparent); transform: skewX(-30deg); }
 img { max-width: 100%; }
 @media (max-width: 600px) {
@@ -131,6 +131,8 @@ img { max-width: 100%; }
 .fire-word.fw-back { background: none; color: #4a3400; -webkit-text-fill-color: #4a3400; filter: none;
   text-shadow: 0 1px 0 #7a5a00, 0 2px 0 #7a5a00, 0 3px 0 #6a4d00, 0 4px 0 #6a4d00, 0 5px 0 #5a4000, 0 6px 0 #5a4000, 0 7px 0 #4a3400, 0 8px 0 #4a3400, 0 16px 30px rgba(255,214,10,.7); }
 .fire-wrap { width: min(96vw, 820px); }
+.site-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(rgba(7,6,15,.74), rgba(7,6,15,.9)), url('../assets/hands.jpg') center / cover no-repeat; }
 
 /* ---- Polish pass: fixes, scroll effects, performance ---- */
 /* Tailwind preflight resets headings/lists; restore sensible defaults */
