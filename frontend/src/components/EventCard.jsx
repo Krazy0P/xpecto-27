@@ -12,7 +12,7 @@ export default function EventCard({ event: e, onRegister }) {
         {isAdmin && <Link to={`/admin?tab=events&id=${e.id}`} className="edit-pencil" aria-label={`Edit ${e.name}`}>✎</Link>}
         <Link to={`/events/${e.id}`} className="fcard-art" tabIndex={-1} aria-hidden="true">
           <div className="img-wrap">
-            {e.imageUrl ? <img src={e.imageUrl} alt="" loading="lazy" decoding="async" className="card-img" /> : <div className="card-img ph" lang="ja">競</div>}
+            {e.imageUrl ? <img src={e.imageUrl} alt="" loading="lazy" decoding="async" className="card-img" /> : <div className="card-img ph st-card-ph"><span>XP'27</span></div>}
             <span className="date-badge"><b>{d}</b>{m}</span>
           </div>
         </Link>

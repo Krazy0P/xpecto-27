@@ -34,8 +34,7 @@ export default function Mess() {
           <div className="grid-cards" role="radiogroup" aria-label="Choose a mess">
             {opts.data.map(o => (
               <button key={o.id} role="radio" aria-checked={selected === o.id} className={`tilt-card mess-opt ${selected === o.id ? 'sel' : ''}`} onClick={() => setSelected(o.id)}>
-                {o.imageUrl ? <img src={o.imageUrl} alt="" loading="lazy" decoding="async" className="card-img" /> : <div className="card-img ph" aria-hidden="true" lang="ja">食</div>}
-                <h3>{o.name}</h3><p>{o.description}</p><p><b>{fmtMoney(o.price)}</b></p>
+                <span className="mess-in">{o.imageUrl && <img src={o.imageUrl} alt="" loading="lazy" decoding="async" className="mess-pic" />}<h3>{o.name}</h3><p>{o.description}</p><p className="mess-price"><b>{fmtMoney(o.price)}</b></p></span>
               </button>
             ))}
           </div>

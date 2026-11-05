@@ -58,3 +58,10 @@ Hero, stats, About text, sponsor names, contact and team portraits sit directly 
 - Depth effects: `ParallaxBackground` (photo / grid / glow orbs at different scroll speeds, one rAF-throttled listener, transforms only), scroll-in reveal with stagger (`RevealObserver`), animated counters (`CountUp`), route-change sweep line. Speeds are the `0.1`, `0.16`, `0.4` factors in `ParallaxBackground.jsx`.
 - Cards tilt toward the mouse with a moving glare (`components/TiltObserver.jsx`, one delegated listener; mouse only, off for touch and reduced motion). Add `tilt-card` to any element to opt in; tune strength via `MAX` in that file.
 - Animations respect `prefers-reduced-motion`. Routes and images are lazy-loaded.
+
+## 3D background + intro (Neura)
+The old photo/parallax/ember background and hand intro were replaced by `src/components/NeuraScene.jsx` (three.js 0.128, one persistent canvas behind every page).
+- Run `npm install` (adds `three@0.128.0`).
+- Model data lives in `public/galaxy.bin` (50,000 star points, float32 xyz + uint8 rgb, raw-deflated; loaded at runtime). Intro: white-out inside a star, then an exponential zoom-out to the whole galaxy.
+- Intro plays once per session (`xpecto_intro_seen`); clear sessionStorage to replay.
+- Model credit (CC BY 4.0): "Need some space?" by Loïc Norgeot — shown in the footer, keep it.
