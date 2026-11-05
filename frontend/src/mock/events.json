@@ -1,2 +1,742 @@
-[{"id":1,"slug":"robo-war","name":"Robo War","category":"Robotics","description":"Battle of bots.","rules":"Max weight 15 kg.","imageUrl":"","startTime":"2027-02-20T10:30:00+05:30","endTime":"2027-02-20T17:00:00+05:30","venue":"Main Arena","prizePool":50000,"prizeBreakdown":[{"position":"1st","amount":25000},{"position":"2nd","amount":15000},{"position":"3rd","amount":10000}],"registrationFee":500,"teamSize":{"min":1,"max":4},"registrationOpen":true,"contact":{"name":"Organizer","phone":"+91 00000 00000"}},
-{"id":2,"slug":"robo-race","name":"Robo Race","category":"Robotics","description":"Fastest bot wins.","rules":"Autonomous or manual.","imageUrl":"","startTime":"2027-02-21T11:00:00+05:30","endTime":"2027-02-21T16:00:00+05:30","venue":"Track Ground","prizePool":30000,"prizeBreakdown":[{"position":"1st","amount":15000},{"position":"2nd","amount":10000},{"position":"3rd","amount":5000}],"registrationFee":400,"teamSize":{"min":1,"max":3},"registrationOpen":true,"contact":{"name":"Organizer","phone":"+91 00000 00000"}}]
+[
+  {
+    "id": 1,
+    "slug": "robo-war",
+    "name": "Robo War",
+    "category": "Robotics",
+    "description": "Unleash your custom-built combat bot in an electrifying battle of destruction and durability inside the steel enclosure. Outmaneuver, immobilize, or knock out your opponents to claim ultimate mechanical dominance. Safety inspections and weight classes strictly apply before arena entry.",
+    "rules": "Bots must adhere to the 30kg weight limit. Wireless control only with fail-safe mechanisms enabled. Flamethrowers and liquid weapons are strictly prohibited.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T10:00:00Z",
+    "endTime": "2027-02-21T17:00:00Z",
+    "venue": "Main Arena",
+    "prizePool": 60000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 35000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 18000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 7000
+      }
+    ],
+    "registrationFee": 800,
+    "teamSize": {
+      "min": 2,
+      "max": 5
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Arjun Sharma",
+      "phone": "+91 98765 43210"
+    }
+  },
+  {
+    "id": 2,
+    "slug": "robo-race",
+    "name": "Robo Race",
+    "category": "Robotics",
+    "description": "Navigate a rugged, obstacle-filled course engineered with ramps, pits, and sharp hairpins in the fastest time possible. Precision handling and responsive chassis tuning will determine who takes the checkered flag. Compete in timed trials followed by head-to-head sprint finals.",
+    "rules": "Maximum vehicle dimensions are 30cm x 30cm x 30cm. Time penalties of 5 seconds will be added for touching obstacle boundaries. Readjustments on track cost 10 penalty seconds.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T11:00:00Z",
+    "endTime": "2027-02-20T15:00:00Z",
+    "venue": "Track Ground",
+    "prizePool": 30000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 18000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 8000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 4000
+      }
+    ],
+    "registrationFee": 400,
+    "teamSize": {
+      "min": 1,
+      "max": 4
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Pooja Verma",
+      "phone": "+91 98765 43211"
+    }
+  },
+  {
+    "id": 3,
+    "slug": "line-follower",
+    "name": "Line Follower",
+    "category": "Robotics",
+    "description": "Construct an autonomous rover that tracks a complex monochrome trail featuring sharp turns, cross-overs, and loop tracks. Speed, sensor calibration, and PID algorithm optimization are key to mastering the unpredictable course. The bot completing the course accurately in the shortest time wins.",
+    "rules": "Microcontroller must run fully autonomously with no remote commands during the run. Line width is 30mm black line on white surface. Max 2 trial runs per bot.",
+    "imageUrl": "",
+    "startTime": "2027-02-22T09:30:00Z",
+    "endTime": "2027-02-22T13:30:00Z",
+    "venue": "Workshop Hall",
+    "prizePool": 25000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 15000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 7000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 300,
+    "teamSize": {
+      "min": 1,
+      "max": 3
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Kunal Roy",
+      "phone": "+91 98765 43212"
+    }
+  },
+  {
+    "id": 4,
+    "slug": "drone-challenge",
+    "name": "Drone Challenge",
+    "category": "Robotics",
+    "description": "Pilot your quadcopter through high-speed aerial gates, rings, and altitude obstacles under pressure. Showcase your acrobatic flight dexterity or autonomous navigation prowess over multiple race heats. Precision maneuvering against clock benchmarks will separate the aces from novices.",
+    "rules": "Standard prop guards are mandatory for all racing frames. FPV transmission frequencies must be coordinated with ground control. Failure to pass a hoop adds a 10-second penalty.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T13:00:00Z",
+    "endTime": "2027-02-21T18:00:00Z",
+    "venue": "Track Ground",
+    "prizePool": 45000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 25000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 14000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 6000
+      }
+    ],
+    "registrationFee": 600,
+    "teamSize": {
+      "min": 1,
+      "max": 4
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Rohan Deshmukh",
+      "phone": "+91 98765 43213"
+    }
+  },
+  {
+    "id": 5,
+    "slug": "code-sprint",
+    "name": "Code Sprint",
+    "category": "Coding",
+    "description": "A fast-paced algorithmic speed-coding sprint where every second counts against the leaderboard. Participants tackle algorithmic and mathematical puzzles ranging from dynamic programming to graph theory. Quick problem comprehension and optimal time complexity are vital for ranking high.",
+    "rules": "Supported languages include C++, Java, Python, and Rust. Plagiarism checks run automatically on test submissions. Time penalty applies for each incorrect submission.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T14:00:00Z",
+    "endTime": "2027-02-20T17:00:00Z",
+    "venue": "CS Lab",
+    "prizePool": 35000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 20000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 10000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 5000
+      }
+    ],
+    "registrationFee": 250,
+    "teamSize": {
+      "min": 1,
+      "max": 2
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Siddharth Nair",
+      "phone": "+91 98765 43214"
+    }
+  },
+  {
+    "id": 6,
+    "slug": "debug-dash",
+    "name": "Debug Dash",
+    "category": "Coding",
+    "description": "Track down elusive syntax errors, memory leaks, concurrency race conditions, and logical flaws buried in messy codebases. Test your debugging instincts across real-world broken applications and unit tests. The fastest coder to fix the bugs and ensure all test suites pass triumphs.",
+    "rules": "Internet access is restricted to official language documentation only. Modifying test suites is prohibited and will cause immediate disqualification. Code must pass memory and boundary limits.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T11:00:00Z",
+    "endTime": "2027-02-21T13:30:00Z",
+    "venue": "CS Lab",
+    "prizePool": 20000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 12000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 5000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 200,
+    "teamSize": {
+      "min": 1,
+      "max": 2
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Ananya Joshi",
+      "phone": "+91 98765 43215"
+    }
+  },
+  {
+    "id": 7,
+    "slug": "hackathon-36hr",
+    "name": "Hackathon 36hr",
+    "category": "Coding",
+    "description": "An intensive 36-hour hackathon designed to build groundbreaking web, mobile, and decentralized applications from scratch. Collaborate with your squad through round-the-clock mentor checkpoints, pizza sprints, and live demos. Final prototypes are judged on innovation, architectural execution, and user impact.",
+    "rules": "All code must be authored during the hackathon period; open-source libraries are permitted. Regular commits must be pushed to the designated repository. Final pitch lasts 5 minutes plus 3 minutes Q&A.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T20:00:00Z",
+    "endTime": "2027-02-22T08:00:00Z",
+    "venue": "Auditorium",
+    "prizePool": 75000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 40000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 23000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 12000
+      }
+    ],
+    "registrationFee": 1000,
+    "teamSize": {
+      "min": 2,
+      "max": 4
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Vikram Sen",
+      "phone": "+91 98765 43216"
+    }
+  },
+  {
+    "id": 8,
+    "slug": "competitive-programming",
+    "name": "Competitive Programming",
+    "category": "Coding",
+    "description": "The definitive battleground for individual algorithmic problem solvers tested against collegiate ICPC-style problems. Solve complex tree queries, geometry tasks, and combinatorics under strict memory and time limits. Only the sharpest logic and relentless focus will conquer the podium.",
+    "rules": "Individual participation only. No pre-written templates or physical cheat sheets beyond one blank paper sheet. Standard ICPC scoring rules apply with 20-minute penalty per wrong attempt.",
+    "imageUrl": "",
+    "startTime": "2027-02-22T10:00:00Z",
+    "endTime": "2027-02-22T14:00:00Z",
+    "venue": "CS Lab",
+    "prizePool": 40000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 22000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 12000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 6000
+      }
+    ],
+    "registrationFee": 300,
+    "teamSize": {
+      "min": 1,
+      "max": 1
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Aditya Rao",
+      "phone": "+91 98765 43217"
+    }
+  },
+  {
+    "id": 9,
+    "slug": "ml-challenge",
+    "name": "ML Challenge",
+    "category": "AI/ML",
+    "description": "A 24-hour predictive modeling showdown where teams build and fine-tune machine learning models on a hidden dataset. Extract features, fight overfitting, and maximize validation metrics on a real-time dynamic leaderboard. The top models undergo scrutiny on unseen test evaluation data.",
+    "rules": "Submissions are limited to 10 per team on the active validation split. Ensemble models must be reproducible within provided compute benchmarks. External datasets are strictly prohibited unless approved.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T13:00:00Z",
+    "endTime": "2027-02-21T13:00:00Z",
+    "venue": "LT-1",
+    "prizePool": 50000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 28000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 15000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 7000
+      }
+    ],
+    "registrationFee": 500,
+    "teamSize": {
+      "min": 1,
+      "max": 3
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Neha Kulkarni",
+      "phone": "+91 98765 43218"
+    }
+  },
+  {
+    "id": 10,
+    "slug": "ai-art-battle",
+    "name": "AI Art Battle",
+    "category": "AI/ML",
+    "description": "Blend artistic ingenuity with prompt engineering mastery to generate compelling digital artwork under timed themes. Competitors craft sophisticated multimodal prompts, negative constraints, and pipeline refinements live. Entries are judged on aesthetic quality, fidelity to prompt, and conceptual depth.",
+    "rules": "Participants must document and submit exact prompts, seed values, and model architectures. Post-processing in editing software is restricted to a maximum 10-minute touchup. Live exhibition voting carries 30% weight.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T14:00:00Z",
+    "endTime": "2027-02-21T17:30:00Z",
+    "venue": "Workshop Hall",
+    "prizePool": 25000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 14000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 7000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 4000
+      }
+    ],
+    "registrationFee": 300,
+    "teamSize": {
+      "min": 1,
+      "max": 2
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Tanvi Kapoor",
+      "phone": "+91 98765 43219"
+    }
+  },
+  {
+    "id": 11,
+    "slug": "data-science-olympiad",
+    "name": "Data Science Olympiad",
+    "category": "AI/ML",
+    "description": "Unravel rich multivariate datasets through exploratory analysis, causal inference, and intuitive data visualizations. Participants must derive actionable business insights and statistical conclusions presented in an executive dashboard. Defend your methodologies before an expert panel of industry data scientists.",
+    "rules": "Jupyter notebooks with all code cells executed must be submitted alongside the presentation. Use of Python or R statistical libraries is required. Presentation duration is strictly 8 minutes.",
+    "imageUrl": "",
+    "startTime": "2027-02-22T10:00:00Z",
+    "endTime": "2027-02-22T15:00:00Z",
+    "venue": "LT-2",
+    "prizePool": 35000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 20000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 10000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 5000
+      }
+    ],
+    "registrationFee": 400,
+    "teamSize": {
+      "min": 1,
+      "max": 3
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Harshvardhan Patel",
+      "phone": "+91 98765 43220"
+    }
+  },
+  {
+    "id": 12,
+    "slug": "circuit-design",
+    "name": "Circuit Design",
+    "category": "Electronics",
+    "description": "Put your analog and digital hardware knowledge to the test by designing, breadboarding, and debugging electronic circuits. Tackle simulation benchmarks in SPICE before assembling physical components against design specifications. Evaluated on signal fidelity, component efficiency, and circuit stability.",
+    "rules": "All hardware components and breadboards are provided on-site. Participants must verify safety limits before powering up their circuits. Breadboard layout neatness and wire dressing are graded.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T10:00:00Z",
+    "endTime": "2027-02-20T14:00:00Z",
+    "venue": "Workshop Hall",
+    "prizePool": 25000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 15000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 7000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 300,
+    "teamSize": {
+      "min": 1,
+      "max": 2
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Gaurav Mehta",
+      "phone": "+91 98765 43221"
+    }
+  },
+  {
+    "id": 13,
+    "slug": "iot-innovation",
+    "name": "IoT Innovation",
+    "category": "Electronics",
+    "description": "Design smart connected devices integrating microcontrollers, ambient sensors, and cloud telemetry protocols to solve real problems. Build functional prototypes addressing smart cities, agricultural monitoring, or healthcare telemetry. Deliver a live demonstration highlighting end-to-end data pipelines and low-power hardware design.",
+    "rules": "Prototypes must showcase live bidirectional communication between sensors and a cloud broker. Microcontrollers such as ESP32, STM32, or Raspberry Pi are permitted. 10 minutes live demo per team.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T09:00:00Z",
+    "endTime": "2027-02-21T16:00:00Z",
+    "venue": "Workshop Hall",
+    "prizePool": 40000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 24000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 11000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 5000
+      }
+    ],
+    "registrationFee": 500,
+    "teamSize": {
+      "min": 2,
+      "max": 4
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Kavita Reddy",
+      "phone": "+91 98765 43222"
+    }
+  },
+  {
+    "id": 14,
+    "slug": "pcb-challenge",
+    "name": "PCB Challenge",
+    "category": "Electronics",
+    "description": "Transform complex circuit schematics into production-ready multi-layer printed circuit board layouts using KiCad or Altium. Optimize trace impedance, thermal dissipation, ground planes, and design-for-manufacturing (DFM) rules. Speed and adherence to strict IPC layout guidelines dictate the winner.",
+    "rules": "Schematic files will be provided at the start of the round. Layouts must pass zero-error DRC checks on default manufacturer constraints. Submissions must include complete Gerber and drill packages.",
+    "imageUrl": "",
+    "startTime": "2027-02-22T11:00:00Z",
+    "endTime": "2027-02-22T15:00:00Z",
+    "venue": "CS Lab",
+    "prizePool": 20000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 12000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 5000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 250,
+    "teamSize": {
+      "min": 1,
+      "max": 2
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Manish Tiwari",
+      "phone": "+91 98765 43223"
+    }
+  },
+  {
+    "id": 15,
+    "slug": "valorant-tournament",
+    "name": "Valorant Tournament",
+    "category": "Gaming",
+    "description": "Lock in your agents and battle for tactical FPS dominance across custom competitive brackets. Coordinate site retakes, utility lineups, and clutch plays on the tournament main stage. Single-elimination group stages lead into an electrifying best-of-three grand finale.",
+    "rules": "Standard 5v5 competitive settings with map veto process. Third-party macros or unauthorized peripheral software result in immediate forfeit. Substitutes must be registered before tournament kick-off.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T11:00:00Z",
+    "endTime": "2027-02-21T21:00:00Z",
+    "venue": "E-Sports Arena",
+    "prizePool": 50000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 30000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 15000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 5000
+      }
+    ],
+    "registrationFee": 800,
+    "teamSize": {
+      "min": 5,
+      "max": 6
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Dhruv Chadha",
+      "phone": "+91 98765 43224"
+    }
+  },
+  {
+    "id": 16,
+    "slug": "fifa-showdown",
+    "name": "FIFA Showdown",
+    "category": "Gaming",
+    "description": "Take the virtual pitch and prove your football prowess in intense 1v1 console matchups. Execute dazzling skill moves, strategic tactical formations, and golden goal finishes under tournament lights. Advance through the knockout brackets to lift the coveted championship cup.",
+    "rules": "Matches are 6-minute halves on legendary difficulty. Club teams only; classic or custom squads are disabled. Tactical defending is mandatory.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T10:00:00Z",
+    "endTime": "2027-02-21T18:00:00Z",
+    "venue": "E-Sports Arena",
+    "prizePool": 20000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 12000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 5000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 250,
+    "teamSize": {
+      "min": 1,
+      "max": 1
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Samar Ali",
+      "phone": "+91 98765 43225"
+    }
+  },
+  {
+    "id": 17,
+    "slug": "chess-championship",
+    "name": "Chess Championship",
+    "category": "Gaming",
+    "description": "Engage your mind in classical and rapid chess battles across multiple Swiss-system tournament rounds. Outwit opponents with sharp tactical sacrifices, endgame precision, and composure under the ticking clock. FIDE rated arbiters oversee every move ensuring an uncompromising standard of play.",
+    "rules": "FIDE blitz rules apply with 10 minutes + 5 seconds increment per player. Touch-move rule strictly enforced throughout play. Recording moves is mandatory until under 5 minutes on the clock.",
+    "imageUrl": "",
+    "startTime": "2027-02-22T09:00:00Z",
+    "endTime": "2027-02-22T17:00:00Z",
+    "venue": "LT-2",
+    "prizePool": 15000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 9000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 4000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 2000
+      }
+    ],
+    "registrationFee": 200,
+    "teamSize": {
+      "min": 1,
+      "max": 1
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Deepak Bhatt",
+      "phone": "+91 98765 43226"
+    }
+  },
+  {
+    "id": 18,
+    "slug": "quiz-bowl",
+    "name": "Quiz Bowl",
+    "category": "General",
+    "description": "A high-octane trivia clash testing science, pop culture, computing history, and world geopolitics. Quick buzzer reflexes and collective team intellect determine who survives the knockout rounds. Face off in rapid-fire rounds, visual clues, and high-stakes wager questions.",
+    "rules": "Written preliminary round qualifies the top 6 teams for stage buzzer finals. Negative marks for wrong answers during buzzer rounds. The quizmaster decision is final in all disputes.",
+    "imageUrl": "",
+    "startTime": "2027-02-20T15:00:00Z",
+    "endTime": "2027-02-20T18:30:00Z",
+    "venue": "Auditorium",
+    "prizePool": 20000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 11000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 6000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 250,
+    "teamSize": {
+      "min": 2,
+      "max": 3
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Meera Swaminathan",
+      "phone": "+91 98765 43227"
+    }
+  },
+  {
+    "id": 19,
+    "slug": "case-study",
+    "name": "Case Study",
+    "category": "General",
+    "description": "Dissect real-world business and technological dilemmas presented in an intensive corporate case study. Formulate viable growth strategies, financial projections, and operational risk mitigation plans. Pitch your solutions directly to a panel of startup founders and venture investors.",
+    "rules": "Case decks are released 24 hours prior to presentation round. Presentations must not exceed 10 slides and 10 minutes speaking time. All financial models must be substantiated with clear assumptions.",
+    "imageUrl": "",
+    "startTime": "2027-02-21T10:00:00Z",
+    "endTime": "2027-02-21T15:00:00Z",
+    "venue": "LT-1",
+    "prizePool": 30000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 18000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 8000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 4000
+      }
+    ],
+    "registrationFee": 400,
+    "teamSize": {
+      "min": 2,
+      "max": 4
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Prateek Singhal",
+      "phone": "+91 98765 43228"
+    }
+  },
+  {
+    "id": 20,
+    "slug": "paper-presentation",
+    "name": "Paper Presentation",
+    "category": "General",
+    "description": "Present cutting-edge original research, empirical studies, or innovative engineering surveys before an academic jury. Articulate technical findings clearly, highlighting methodology rigor and novel contributions to the scientific community. Engage in rigorous technical defence during peer Q&A sessions.",
+    "rules": "Papers must follow standard IEEE two-column format with maximum 6 pages. Plagiarism threshold must be below 15% excluding citations. Presentation slot is 12 minutes followed by 5 minutes Q&A.",
+    "imageUrl": "",
+    "startTime": "2027-02-22T10:00:00Z",
+    "endTime": "2027-02-22T16:00:00Z",
+    "venue": "LT-1",
+    "prizePool": 25000,
+    "prizeBreakdown": [
+      {
+        "position": "1st Place",
+        "amount": 15000
+      },
+      {
+        "position": "2nd Place",
+        "amount": 7000
+      },
+      {
+        "position": "3rd Place",
+        "amount": 3000
+      }
+    ],
+    "registrationFee": 300,
+    "teamSize": {
+      "min": 1,
+      "max": 3
+    },
+    "registrationOpen": true,
+    "contact": {
+      "name": "Shalini Nair",
+      "phone": "+91 98765 43229"
+    }
+  }
+]
