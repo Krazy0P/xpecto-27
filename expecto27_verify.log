@@ -1,3 +1,0 @@
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
-     Running `target/debug/expecto-27`
-[2m2026-09-03T18:37:06.376872Z[0m [32m INFO[0m [2mexpecto_27[0m[2m:[0m Server running on http://127.0.0.1:3000
