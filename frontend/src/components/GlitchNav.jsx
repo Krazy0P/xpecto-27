@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { path: '/workshops', label: 'Workshops' },
   { path: '/sponsors', label: 'Sponsors' },
   { path: '/team', label: 'Team' },
+  { path: '/campus-ambassador', label: 'Campus Ambassador' },
 ];
 
 /**

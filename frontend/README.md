@@ -35,6 +35,12 @@ The API should expose `GET /api/events`, `/api/workshops`, `/api/team`, `/api/sp
 
 Admin participant registration uses `POST /api/admin/registrations` with `{ participantName, participantEmail, participantPhone, college, visitDays, competitions, competitionNames }`. Store these fields on the registration document, set `kind` to `event`, `status` to `approved`, `source` to `admin`, keep `competitions` as an array of event IDs, and keep `competitionNames` as a display snapshot. The admin list endpoint should return these fields.
 
+Campus Ambassador endpoints:
+- `POST /api/campus-ambassadors` accepts `name`, `email`, `phone`, `college`, `city`, `course`, `year`, `socialLink`, `reach`, and `motivation`; create a `pending` application and reject duplicate email applications with `409 ALREADY_APPLIED`.
+- `GET /api/admin/campus-ambassadors` returns applications for admins.
+- `PATCH /api/admin/campus-ambassadors/:id` accepts `{ "status": "approved" | "rejected" }`.
+- MongoDB documents should include `status`, `createdAt`, and timestamps, and should be protected by admin authorization on the admin endpoints.
+
 ## Optional Express mock server
 ```bash
 npm run mock-server      # http://127.0.0.1:3000, in-memory, implements the full contract

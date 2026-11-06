@@ -5,6 +5,7 @@ import SingleForm from './SingleForm';
 import RegTable from './RegTable';
 import RegisterPerson from './RegisterPerson';
 import AdminsTab from './AdminsTab';
+import AmbassadorsTab from './AmbassadorsTab';
 import { slugify } from './util';
 import { SPONSOR_TIERS, TEAM_ROLES } from '../../utils';
 
@@ -23,7 +24,7 @@ const SPONSOR = [T('name', 'Name', 'text', { required: true }), T('tier', 'Tier'
 const MESS = [T('name', 'Name', 'text', { required: true }), T('description', 'Description', 'textarea'), T('price', 'Price (₹)', 'number'), T('imageUrl', 'Image', 'image')];
 const PAYMENT = [T('qrImageUrl', 'Payment QR image', 'image'), T('upiId', 'UPI ID', 'text', { required: true }), T('note', 'Note shown to users', 'textarea')];
 
-const TABS = [['fest', 'Fest Info'], ['events', 'Events'], ['workshops', 'Workshops'], ['team', 'Team'], ['sponsors', 'Sponsors'], ['mess', 'Mess Options'], ['payment', 'Payment QR'], ['register', 'Register Person'], ['regs', 'Registrations'], ['messregs', 'Mess Regs'], ['admins', 'Admins']];
+const TABS = [['fest', 'Fest Info'], ['events', 'Events'], ['workshops', 'Workshops'], ['team', 'Team'], ['sponsors', 'Sponsors'], ['mess', 'Mess Options'], ['payment', 'Payment QR'], ['register', 'Register Person'], ['ambassadors', 'Ambassadors'], ['regs', 'Registrations'], ['messregs', 'Mess Regs'], ['admins', 'Admins']];
 
 export default function Admin() {
   const [params, setParams] = useSearchParams();
@@ -41,6 +42,7 @@ export default function Admin() {
     mess: <CrudTab title="Mess option" load={api.getMessOptions} resource={{ update: api.admin.updateMessOption }} fields={MESS} label={x => x.name} canCreate={false} canDelete={false} blank={{}} />,
     payment: <SingleForm title="Payment QR & UPI" load={api.getPaymentInfo} save={api.admin.updatePayment} fields={PAYMENT} />,
     register: <RegisterPerson />,
+    ambassadors: <AmbassadorsTab />,
     regs: <RegTable />, messregs: <RegTable mess />, admins: <AdminsTab />,
   }[tab];
 

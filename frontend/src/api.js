@@ -78,6 +78,12 @@ const normMessReg = r => {
     amount: num(o.amount), createdAt: iso(o.createdAt), confirmationQrUrl: nullableStr(o.confirmationQrUrl), user: o.user ? normUser(o.user) : null };
 };
 const normAdmins = v => toList(v).map(a => typeof a === 'string' ? a : a?.email).filter(Boolean).map(String);
+const normAmbassador = a => {
+  const o = toObject(a);
+  return { ...o, id: entityId(o), name: str(o.name), email: str(o.email), phone: str(o.phone), college: str(o.college),
+    city: str(o.city), course: str(o.course), year: str(o.year), socialLink: str(o.socialLink),
+    motivation: str(o.motivation), reach: str(o.reach), status: canonical(o.status, ['pending', 'approved', 'rejected'], 'pending'), createdAt: iso(o.createdAt) };
+};
 
 const mapList = fn => v => toList(v).map(fn);
 const byOrder = (a, b) => a.order - b.order;
@@ -86,7 +92,7 @@ const db = {
   fest: { ...fest }, events: [...events], workshops: [...workshops], team: [...team],
   sponsors: [...sponsors], mess: [...mess], payment: { ...payment },
   regs: [], messRegs: [], users: [],
-  admins: ['b25347@students.iitmandi.ac.in'],
+  admins: ['b25347@students.iitmandi.ac.in'], ambassadors: [],
 };
 const delay = v => new Promise(r => setTimeout(() => r(structuredClone(v)), 250));
 const readStoredUser = () => { try { return JSON.parse(localStorage.getItem('mockUser') || 'null'); } catch { return null; } };
@@ -159,6 +165,11 @@ const api = {
       { messOption: opt?.id, userId: u.id, amount: opt?.price ?? 0, confirmationQrUrl: null }).then(normMessReg);
   },
   myMessRegistrations: () => (USE_MOCK ? (getUser() ? delay(db.messRegs.filter(r => sameId(r.userId, getUser().id))) : needUser()) : http.get('/api/mess/registrations/me')).then(mapList(normMessReg)),
+  applyCampusAmbassador: body => USE_MOCK
+    ? (db.ambassadors.some(a => a.email.toLowerCase() === body.email.toLowerCase())
+      ? fail(409, 'ALREADY_APPLIED', 'An application with this email already exists.')
+      : delay((db.ambassadors.push({ ...body, id: nextId++, status: 'pending', createdAt: new Date().toISOString() }), db.ambassadors.at(-1))).then(normAmbassador))
+    : http.post('/api/campus-ambassadors', body).then(normAmbassador),
 
   admin: {
     updateFest: b => (USE_MOCK ? needAdmin() || delay((db.fest = b, b)) : http.put('/api/admin/fest', b)).then(normFest),
@@ -189,6 +200,10 @@ const api = {
     addAdmin: email => USE_MOCK ? needAdmin() || delay((db.admins.includes(email) || db.admins.push(email), { ok: true })) : http.post('/api/admin/admins', { email }),
     removeAdmin: email => USE_MOCK ? needAdmin() || delay((db.admins = db.admins.filter(a => a !== email), { ok: true })) : http.delete(`/api/admin/admins/${encodeURIComponent(email)}`),
     exportCsvUrl: () => `${BASE}/api/admin/registrations/export.csv`,
+    ambassadors: params => (USE_MOCK ? needAdmin() || delay(db.ambassadors) : http.get('/api/admin/campus-ambassadors', { params })).then(mapList(normAmbassador)),
+    decideAmbassador: (id, action) => USE_MOCK
+      ? needAdmin() || delay((db.ambassadors = db.ambassadors.map(a => sameId(a.id, id) ? { ...a, status: action } : a), { ok: true }))
+      : http.patch(`/api/admin/campus-ambassadors/${id}`, { status: action }),
   },
 };
 export default api;
