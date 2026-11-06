@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import PaymentModal from '../components/PaymentModal';
-// Plain content block that sits on the scene (no box)
-const Block = ({ className = '', children }) => <section className={`dsec ${className}`}>{children}</section>;
 import ErrorState from '../components/ErrorState';
 import useRegisterFlow from '../hooks/useRegisterFlow';
 import { fmtDate, fmtTime, fmtMoney } from '../utils';
+
+const Block = ({ className = '', children }) => <section className={`dsec ${className}`}>{children}</section>;
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -20,11 +20,12 @@ export default function EventDetail() {
   const load = useCallback(() => { setError(null); setE(null); api.getEvent(id).then(setE).catch(x => setError(x.code === 'NOT_FOUND' ? 'This event does not exist.' : x.message)); }, [id]);
   useEffect(load, [load]);
 
-  const open = useCallback(ev => flow.start({ id: ev.id, name: ev.name, amount: ev.registrationFee, teamSize: ev.teamSize }, `/events/${ev.id}?register=1`), [flow.start]);
+  const { start } = flow;
+  const open = useCallback(ev => start({ id: ev.id, name: ev.name, amount: ev.registrationFee, teamSize: ev.teamSize }, `/events/${ev.id}?register=1`), [start]);
   // Returning from login with ?register=1 reopens the payment modal automatically
   useEffect(() => {
     if (e && !loading && user && params.get('register')) { setParams({}, { replace: true }); if (e.registrationOpen) open(e); }
-  }, [e, loading, user]); // eslint-disable-line
+  }, [e, loading, user, params, setParams, open]);
 
   if (error) return <section className="page"><ErrorState message={error} onRetry={load} /></section>;
   if (!e) return <section className="page" aria-busy="true"><div className="skeleton" style={{ height: 300 }} /></section>;
@@ -40,7 +41,7 @@ export default function EventDetail() {
           <p className="chip">{e.category}</p>
           <p>{fmtDate(e.startTime)} · {fmtTime(e.startTime)}–{fmtTime(e.endTime)}</p>
           <p>{e.venue}</p>
-          <p>Team size {e.teamSize.min}–{e.teamSize.max} · Fee <b>{fmtMoney(e.registrationFee)}</b></p>
+          <p>Team size {e.teamSize.min === e.teamSize.max ? e.teamSize.min : `${e.teamSize.min}–${e.teamSize.max}`} · Fee <b>{fmtMoney(e.registrationFee)}</b></p>
           <button className="btn-slash" disabled={!e.registrationOpen} onClick={() => open(e)}>{e.registrationOpen ? 'Register' : 'Registration closed'}</button>
         </div>
       </Block>
@@ -48,9 +49,9 @@ export default function EventDetail() {
       <Block className="mt"><h2>Rules</h2><p style={{ whiteSpace: 'pre-line' }}>{e.rules}</p></Block>
       <Block className="mt">
         <h2>Prizes · {fmtMoney(e.prizePool)}</h2>
-        <ul className="prizes">{e.prizeBreakdown.map(p => <li key={p.position}><b>{p.position}</b> {fmtMoney(p.amount)}</li>)}</ul>
+        <ul className="prizes">{e.prizeBreakdown.map((p, i) => <li key={`${p.position}-${i}`}><b>{p.position}</b> {fmtMoney(p.amount)}</li>)}</ul>
       </Block>
-      <Block className="mt"><h2>Contact</h2><p>{e.contact?.name} · {e.contact?.phone}</p></Block>
+      <Block className="mt"><h2>Contact</h2><p>{[e.contact.name, e.contact.phone].filter(Boolean).join(' · ')}</p></Block>
       {flow.target && <PaymentModal kind="event" target={flow.target} onClose={flow.close} />}
     </section>
   );

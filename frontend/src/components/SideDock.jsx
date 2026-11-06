@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 
 // Stroke icons (24x24). Same routes as the navbar; shown only on wide screens, like a game HUD dock.
 const ITEMS = [

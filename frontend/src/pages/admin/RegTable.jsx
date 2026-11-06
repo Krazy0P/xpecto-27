@@ -5,7 +5,7 @@ import useAsync from '../../hooks/useAsync';
 import StatusBadge from '../../components/StatusBadge';
 import ErrorState from '../../components/ErrorState';
 import { useAdminError } from './util';
-import { fmtDate } from '../../utils';
+import { fmtDate, sameId } from '../../utils';
 
 /** Registrations review table. mess=true switches to the mess endpoints. */
 export default function RegTable({ mess = false }) {
@@ -13,14 +13,14 @@ export default function RegTable({ mess = false }) {
   const [rejecting, setRejecting] = useState(null);
   const [reason, setReason] = useState('');
   const fail = useAdminError();
-  const targets = useAsync(() => Promise.all([api.getEvents(), api.getWorkshops()]), []);
+  const targets = useAsync(() => Promise.all([api.getEvents(), api.getWorkshops(), api.getMessOptions()]).then(([events, workshops, messOptions]) => ({ events, workshops, messOptions })), []);
   const params = Object.fromEntries(Object.entries(f).filter(([, v]) => v));
   const { data, error, reload } = useAsync(() => mess ? api.admin.messRegistrations(params) : api.admin.registrations(params), [JSON.stringify(f)]);
   const set = k => e => setF({ ...f, [k]: e.target.value, ...(k === 'kind' ? { targetId: '' } : {}) });
-  const opts = f.kind === 'event' ? targets.data?.[0] : f.kind === 'workshop' ? targets.data?.[1] : [];
+  const opts = f.kind === 'event' ? targets.data?.events : f.kind === 'workshop' ? targets.data?.workshops : [];
 
   // Client-side filter too, so mock mode behaves like the server
-  const rows = (data || []).filter(r => (!f.status || r.status === f.status) && (mess ? !f.messOption || r.messOption === f.messOption : (!f.kind || r.kind === f.kind) && (!f.targetId || String(r.targetId) === f.targetId)));
+  const rows = (data || []).filter(r => (!f.status || r.status === f.status) && (mess ? !f.messOption || sameId(r.messOption, f.messOption) : (!f.kind || r.kind === f.kind) && (!f.targetId || sameId(r.targetId, f.targetId))));
 
   const decide = async (r, action) => {
     try {
@@ -29,10 +29,10 @@ export default function RegTable({ mess = false }) {
     } catch (x) { fail(x); }
   };
   const exportCsv = () => {
-    if (!USE_MOCK) return window.open(api.admin.exportCsvUrl(), '_blank');
+    if (!USE_MOCK) return window.open(api.admin.exportCsvUrl(), '_blank', 'noopener');
     const head = ['id', 'user', 'email', 'kind', 'target', 'transactionId', 'amount', 'status'];
-    const csv = [head, ...rows.map(r => [r.id, r.user?.name, r.user?.email, r.kind || 'mess', r.targetName || r.messOption, r.transactionId, r.amount, r.status])].map(a => a.map(c => `"${c ?? ''}"`).join(',')).join('\n');
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'registrations.csv'; a.click();
+    const csv = [head, ...rows.map(r => [r.id, r.user?.name, r.user?.email, r.kind || 'mess', r.targetName || r.messOption, r.transactionId, r.amount, r.status])].map(a => a.map(c => `"${String(c ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); const a = document.createElement('a'); a.href = url; a.download = 'registrations.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   return (
@@ -41,7 +41,7 @@ export default function RegTable({ mess = false }) {
       <div className="filters">
         {!mess && <label>Kind <select value={f.kind} onChange={set('kind')}><option value="">All</option><option>event</option><option>workshop</option></select></label>}
         {!mess && f.kind && <label>Target <select value={f.targetId} onChange={set('targetId')}><option value="">All</option>{(opts || []).map(o => <option key={o.id} value={o.id}>{o.name || o.title}</option>)}</select></label>}
-        {mess && <label>Mess <select value={f.messOption} onChange={set('messOption')}><option value="">All</option><option>pine</option><option>oak</option><option>alder</option></select></label>}
+        {mess && <label>Mess <select value={f.messOption} onChange={set('messOption')}><option value="">All</option>{(targets.data?.messOptions || []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>}
         <label>Status <select value={f.status} onChange={set('status')}><option value="">All</option><option>pending</option><option>approved</option><option>rejected</option></select></label>
       </div>
       {error ? <ErrorState message={error.message} onRetry={reload} /> : !data ? <div className="skeleton" style={{ height: 120 }} /> : rows.length === 0 ? <p>No registrations match.</p> : (

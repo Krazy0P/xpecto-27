@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import useAsync from '../hooks/useAsync';
@@ -7,6 +7,7 @@ import useRegisterFlow from '../hooks/useRegisterFlow';
 import WorkshopCard from '../components/WorkshopCard';
 import PaymentModal from '../components/PaymentModal';
 import ErrorState from '../components/ErrorState';
+import { sameId } from '../utils';
 
 const toTarget = w => ({ id: w.id, name: w.title, amount: w.fee });
 
@@ -15,16 +16,17 @@ export default function Workshops() {
   const { user, loading } = useAuth();
   const [params, setParams] = useSearchParams();
   const flow = useRegisterFlow();
-  const ask = w => flow.start(toTarget(w), `/workshops?register=${w.id}`);
+  const { start } = flow;
+  const ask = w => start(toTarget(w), `/workshops?register=${w.id}`);
 
   // Back from login with ?register=ID -> reopen the modal for that workshop
   useEffect(() => {
     const id = params.get('register');
     if (!data || loading || !user || !id) return;
     setParams({}, { replace: true });
-    const w = data.find(x => String(x.id) === id);
-    if (w && w.seatsLeft > 0) flow.start(toTarget(w), '');
-  }, [data, loading, user]); // eslint-disable-line
+    const w = data.find(x => sameId(x.id, id));
+    if (w && w.seatsLeft > 0) start(toTarget(w), '');
+  }, [data, loading, user, params, setParams, start]);
 
   const sorted = data ? [...data].sort((a, b) => new Date(a.startTime) - new Date(b.startTime)) : [];
   return (

@@ -12,6 +12,8 @@ export default function GlitchText({ text, children, tag, as, className = '' }) 
     setDisplayText(rawText);
   }, [rawText]);
 
+  useEffect(() => () => clearInterval(intervalRef.current), []);
+
   const handleMouseEnter = () => {
     if (!rawText) return;
     clearInterval(intervalRef.current);

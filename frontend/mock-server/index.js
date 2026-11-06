@@ -74,11 +74,11 @@ app.post('/api/admin/uploads', needAdmin, upload.single('file'), (q, r) => r.jso
 const filt = (list, q) => list.filter(x => Object.entries(q).every(([k, v]) => !v || String(x[k]) === v)).map(withUser);
 app.get('/api/admin/registrations', needAdmin, (q, r) => r.json(filt(db.regs, q.query)));
 app.get('/api/admin/registrations/export.csv', needAdmin, (q, r) => { r.type('text/csv').send(['id,email,kind,target,transactionId,amount,status', ...db.regs.map(x => [x.id, withUser(x).user.email, x.kind, x.targetName, x.transactionId, x.amount, x.status].join(','))].join('\n')); });
-const decide = (list, qr) => (q, r) => { const x = db[list].find(y => String(y.id) === q.params.id); if (!x) return err(r, 404, 'NOT_FOUND', 'Not found.');
+const decide = (list, qr) => (q, r) => { if (!['approve', 'reject'].includes(q.params.action)) return err(r, 404, 'NOT_FOUND', 'Not found.'); const x = db[list].find(y => String(y.id) === q.params.id); if (!x) return err(r, 404, 'NOT_FOUND', 'Not found.');
   x.status = q.params.action === 'approve' ? 'approved' : 'rejected'; if (qr && x.status === 'approved') x.confirmationQrUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#fff"/><text x="100" y="105" text-anchor="middle" font-size="14">MOCK QR #' + x.id + '</text></svg>'); r.json(x); };
-app.post('/api/admin/registrations/:id/:action(approve|reject)', needAdmin, decide('regs'));
+app.post('/api/admin/registrations/:id/:action', needAdmin, decide('regs'));
 app.get('/api/admin/mess/registrations', needAdmin, (q, r) => r.json(filt(db.messRegs, q.query)));
-app.post('/api/admin/mess/registrations/:id/:action(approve|reject)', needAdmin, decide('messRegs', true));
+app.post('/api/admin/mess/registrations/:id/:action', needAdmin, decide('messRegs', true));
 app.get('/api/admin/admins', needAdmin, (q, r) => r.json(db.admins));
 app.post('/api/admin/admins', needAdmin, (q, r) => { if (!db.admins.includes(q.body.email)) db.admins.push(q.body.email); r.json({ ok: true }); });
 app.delete('/api/admin/admins/:email', needAdmin, (q, r) => { db.admins = db.admins.filter(a => a !== q.params.email); r.json({ ok: true }); });

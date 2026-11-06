@@ -1,11 +1,11 @@
 # XPECTO Frontend (IIT Mandi TechFest)
 
-React 18 + Vite + React Router 6 + Tailwind + Framer Motion. Built against `API_CONTRACT.md` (v1); works with mock data until the Rust backend exists.
+React 19 + Vite 8 + React Router 7 + Tailwind 4 + Motion. Built against `API_CONTRACT.md` (v1); works with mock data until the Rust backend exists.
 
 ## Setup
 ```bash
-npm install
-cp .env.example .env     # already present after unzip
+npm install              # Node >= 20.19, works on Linux, macOS and Windows
+cp .env.example .env
 npm run dev              # http://localhost:5173
 npm run build && npm run preview
 ```
@@ -13,7 +13,7 @@ npm run build && npm run preview
 ## Environment variables
 | Var | Meaning |
 |---|---|
-| `VITE_USE_MOCK` | `true` = in-memory data from `src/mock/*.json`, no network. `false` = real server. |
+| `VITE_USE_MOCK` | `false` = real server; anything else (or unset) = in-memory data from `src/mock/*.json`, no network. |
 | `VITE_API_URL` | Backend base URL, e.g. `http://127.0.0.1:3000`. Routes live under `/api`. |
 
 Restart `npm run dev` after editing `.env`.

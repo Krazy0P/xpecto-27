@@ -1,4 +1,14 @@
-@tailwind base; @tailwind components; @tailwind utilities;
+@import "tailwindcss";
+@theme {
+  --color-ink: #07060f;
+  --color-fire: #ff5a1f;
+  --color-volt: #19e6ff;
+  --color-neon: #ff2e93;
+  --font-head: Orbitron, sans-serif;
+  --font-body: Rajdhani, sans-serif;
+  --font-jp: "Dela Gothic One", sans-serif;
+}
+button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
 :root { --ink:#07060f; --panel:#120e22; --fire:#ffd60a; --volt:#19e6ff; --neon:#ff2e93; --text:#eae8f5; --nav-h:76px; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }

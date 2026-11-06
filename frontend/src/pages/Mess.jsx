@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import useAsync from '../hooks/useAsync';
@@ -7,7 +7,7 @@ import useRegisterFlow from '../hooks/useRegisterFlow';
 import PaymentModal from '../components/PaymentModal';
 import MessList from '../components/MessList';
 import ErrorState from '../components/ErrorState';
-import { fmtMoney } from '../utils';
+import { fmtMoney, sameId } from '../utils';
 
 export default function Mess() {
   const { user, loading: authLoading } = useAuth();
@@ -16,13 +16,14 @@ export default function Mess() {
   const [params, setParams] = useSearchParams();
   const [selected, setSelected] = useState(params.get('option') || '');
   const flow = useRegisterFlow();
-  const chosen = opts.data?.find(o => o.id === selected);
+  const chosen = opts.data?.find(o => sameId(o.id, selected));
   const pay = () => flow.start({ id: chosen.id, name: chosen.name, amount: chosen.price }, `/mess?option=${chosen.id}&register=1`);
 
   // Back from login: option is preselected, reopen the modal
+  const { start } = flow;
   useEffect(() => {
-    if (params.get('register') && chosen && user && !authLoading) { setParams({}, { replace: true }); flow.start({ id: chosen.id, name: chosen.name, amount: chosen.price }, ''); }
-  }, [chosen, user, authLoading]); // eslint-disable-line
+    if (params.get('register') && chosen && user && !authLoading) { setParams({}, { replace: true }); start({ id: chosen.id, name: chosen.name, amount: chosen.price }, ''); }
+  }, [chosen, user, authLoading, params, setParams, start]);
 
   return (
     <section className="page">
@@ -33,7 +34,7 @@ export default function Mess() {
         <>
           <div className="grid-cards" role="radiogroup" aria-label="Choose a mess">
             {opts.data.map(o => (
-              <button key={o.id} role="radio" aria-checked={selected === o.id} className={`tilt-card mess-opt ${selected === o.id ? 'sel' : ''}`} onClick={() => setSelected(o.id)}>
+              <button key={o.id} role="radio" aria-checked={sameId(selected, o.id)} className={`tilt-card mess-opt ${sameId(selected, o.id) ? 'sel' : ''}`} onClick={() => setSelected(o.id)}>
                 <span className="mess-in">{o.imageUrl && <img src={o.imageUrl} alt="" loading="lazy" decoding="async" className="mess-pic" />}<h3>{o.name}</h3><p>{o.description}</p><p className="mess-price"><b>{fmtMoney(o.price)}</b></p></span>
               </button>
             ))}

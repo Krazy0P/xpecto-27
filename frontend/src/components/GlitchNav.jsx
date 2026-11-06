@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router';
 import GlitchText from './GlitchText';
-import '../styles/spacetime.css';
+import { useAuth } from '../context/AuthContext';
 
 const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#0123456789ABCDEF';
 const SCRAMBLE_DURATION = 300;
@@ -9,6 +9,7 @@ const SCRAMBLE_DURATION = 300;
 const NAV_LINKS = [
   { path: '/', label: 'About' },
   { path: '/events', label: 'Events' },
+  { path: '/mess', label: 'Mess' },
   { path: '/workshops', label: 'Workshops' },
   { path: '/sponsors', label: 'Sponsors' },
   { path: '/team', label: 'Team' },
@@ -89,6 +90,8 @@ function GlitchNavLink({ to, label, onClick, end = false }) {
 export default function GlitchNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { user, isAdmin, logout } = useAuth();
+  const links = [...NAV_LINKS, ...(user ? [{ path: '/me', label: 'My Registrations' }] : []), ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : []), ...(!user ? [{ path: '/auth', label: 'Login' }] : [])];
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -120,11 +123,12 @@ export default function GlitchNav() {
 
         {/* Right: Desktop Navigation Links */}
         <ul className="st-nav-links">
-          {NAV_LINKS.map(({ path, label }) => (
+          {links.map(({ path, label }) => (
             <li key={path}>
               <GlitchNavLink to={path} label={label} end={path === '/'} />
             </li>
           ))}
+          {user && <li><button type="button" className="st-nav-link" onClick={logout}>Logout</button></li>}
         </ul>
 
         {/* Mobile: Hamburger toggle */}
@@ -148,7 +152,7 @@ export default function GlitchNav() {
         className={`st-mobile-menu ${mobileOpen ? 'open' : ''}`}
         aria-label="Mobile Navigation"
       >
-        {NAV_LINKS.map(({ path, label }) => (
+        {links.map(({ path, label }) => (
           <GlitchNavLink
             key={`mobile-${path}`}
             to={path}
@@ -157,6 +161,7 @@ export default function GlitchNav() {
             onClick={closeMobile}
           />
         ))}
+        {user && <button type="button" className="st-nav-link" onClick={() => { closeMobile(); logout(); }}>Logout</button>}
       </nav>
 
       {/* Mobile Backdrop Overlay */}

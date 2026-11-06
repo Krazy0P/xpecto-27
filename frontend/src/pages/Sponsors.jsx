@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import useAsync from '../hooks/useAsync';
 import ErrorState from '../components/ErrorState';
 import GlitchText from '../components/GlitchText';
+import { groupSponsors } from '../utils';
 
 /**
  * Sponsors page — Broken Space-Time Multiverse Theme
@@ -58,12 +59,7 @@ export default function Sponsors() {
     );
   }
 
-  const validSponsors = (data || []).filter(s => s.logoUrl && typeof s.logoUrl === 'string' && s.logoUrl.trim().length > 0);
-  const title = validSponsors.filter(s => s.tier === 'Title');
-  const gold = validSponsors.filter(s => s.tier === 'Gold');
-  const diamond = validSponsors.filter(s => s.tier === 'Diamond');
-  const silver = validSponsors.filter(s => s.tier === 'Silver');
-  const partners = validSponsors.filter(s => s.tier === 'Partner');
+  const { title, gold, diamond, silver, partner: partners } = groupSponsors(data);
 
   return (
     <section className="page st-page-enter st-sponsors">

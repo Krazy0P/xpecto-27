@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import DOMPurify from 'dompurify';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -7,7 +7,7 @@ import Countdown from '../components/Countdown';
 import CountUp from '../components/CountUp';
 import GlitchText from '../components/GlitchText';
 import ErrorState from '../components/ErrorState';
-import { fmtMoney } from '../utils';
+import { fmtMoney, groupSponsors, istDayCount } from '../utils';
 
 // Simple outline icons for the highlight list
 const PATHS = {
@@ -79,7 +79,7 @@ export default function About() {
   }
 
   const { fest, events, workshops, sponsors } = data;
-  const days = Math.max(1, Math.round((new Date(fest.endDate) - new Date(fest.startDate)) / 864e5));
+  const days = istDayCount(fest.startDate, fest.endDate);
   const ticker = [...events.map(e => e.name), ...workshops.map(w => w.title)];
   const stats = [
     { n: events.length, l: 'Events' },
@@ -88,12 +88,12 @@ export default function About() {
     { n: days, l: 'Days' }
   ];
 
-  // Strictly filter out any sponsors without a valid logo
-  const validSponsors = sponsors.filter(s => s.logoUrl && typeof s.logoUrl === 'string' && s.logoUrl.trim().length > 0);
-  const titleSponsors = validSponsors.filter(s => s.tier === 'Title');
-  const goldSponsors = validSponsors.filter(s => s.tier === 'Gold');
-  const diamondSponsors = validSponsors.filter(s => s.tier === 'Diamond');
-  const partnerSponsors = validSponsors.filter(s => s.tier === 'Partner' || s.tier === 'Silver');
+  const grouped = groupSponsors(sponsors);
+  const validSponsors = grouped.all;
+  const titleSponsors = grouped.title;
+  const goldSponsors = grouped.gold;
+  const diamondSponsors = grouped.diamond;
+  const partnerSponsors = [...grouped.silver, ...grouped.partner];
 
   return (
     <section className="page about st-page-enter">

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import ParticleBackground from './ParticleBackground';
 
 /** Premium 3D glowing title: extruded back layer + metallic gradient front, popping out of the centre with flame embers. */

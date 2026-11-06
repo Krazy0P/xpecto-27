@@ -1,10 +1,11 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import api from '../../api';
 import CrudTab from './CrudTab';
 import SingleForm from './SingleForm';
 import RegTable from './RegTable';
 import AdminsTab from './AdminsTab';
 import { slugify } from './util';
+import { SPONSOR_TIERS, TEAM_ROLES } from '../../utils';
 
 const T = (path, label, type = 'text', extra = {}) => ({ path, label, type, ...extra });
 
@@ -15,9 +16,9 @@ const EVENT = [T('name', 'Name', 'text', { required: true }), T('category', 'Cat
   T('teamSize.min', 'Team size min', 'number'), T('teamSize.max', 'Team size max', 'number'), T('registrationOpen', 'Registration open', 'checkbox'), T('contact.name', 'Contact name'), T('contact.phone', 'Contact phone')];
 const WORKSHOP = [T('title', 'Title', 'text', { required: true }), T('description', 'Description', 'textarea'), T('imageUrl', 'Image', 'image'), T('speaker', 'Speaker'), T('startTime', 'Starts', 'datetime'), T('endTime', 'Ends', 'datetime'),
   T('venue', 'Venue'), T('fee', 'Fee (₹)', 'number'), T('seatsTotal', 'Total seats', 'number'), T('seatsLeft', 'Seats left', 'number')];
-const TEAM = [T('name', 'Name', 'text', { required: true }), T('role', 'Role', 'select', { options: ['Convenor', 'Co-Convenor', 'Team Head', 'Member'] }), T('department', 'Department'), T('photoUrl', 'Photo', 'image'),
+const TEAM = [T('name', 'Name', 'text', { required: true }), T('role', 'Role', 'select', { options: TEAM_ROLES }), T('department', 'Department'), T('photoUrl', 'Photo', 'image'),
   T('email', 'Email', 'email'), T('linkedinUrl', 'LinkedIn URL', 'url'), T('order', 'Display order', 'number')];
-const SPONSOR = [T('name', 'Name', 'text', { required: true }), T('tier', 'Tier', 'select', { options: ['Title', 'Gold', 'Silver', 'Partner'] }), T('logoUrl', 'Logo', 'image'), T('websiteUrl', 'Website', 'url')];
+const SPONSOR = [T('name', 'Name', 'text', { required: true }), T('tier', 'Tier', 'select', { options: SPONSOR_TIERS }), T('logoUrl', 'Logo', 'image'), T('websiteUrl', 'Website', 'url')];
 const MESS = [T('name', 'Name', 'text', { required: true }), T('description', 'Description', 'textarea'), T('price', 'Price (₹)', 'number'), T('imageUrl', 'Image', 'image')];
 const PAYMENT = [T('qrImageUrl', 'Payment QR image', 'image'), T('upiId', 'UPI ID', 'text', { required: true }), T('note', 'Note shown to users', 'textarea')];
 

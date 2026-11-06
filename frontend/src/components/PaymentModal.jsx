@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router';
+import { motion } from 'motion/react';
 import toast from 'react-hot-toast';
 import api from '../api';
 import ImageUpload, { validateImage } from './ImageUpload';
@@ -87,7 +87,7 @@ export default function PaymentModal({ kind, target, onClose, onSuccess }) {
             {step === 1 && (!pay ? (payFailed ? <p role="alert">Could not load payment details. Close and try again.</p> : <Loader />) : (
               <div className="pay-step">
                 {pay.qrImageUrl ? <img className="qr" src={pay.qrImageUrl} alt="UPI payment QR code" /> : <div className="qr skeleton" role="img" aria-label="QR not set yet" />}
-                <p>UPI ID: <b>{pay.upiId}</b> <button className="link-btn" onClick={() => navigator.clipboard?.writeText(pay.upiId).then(() => toast.success('UPI ID copied'))}>Copy</button></p>
+                <p>UPI ID: <b>{pay.upiId}</b> <button className="link-btn" onClick={() => navigator.clipboard?.writeText(pay.upiId).then(() => toast.success('UPI ID copied')).catch(() => toast.error('Could not copy. Select the UPI ID manually.'))}>Copy</button></p>
                 <p className="amount">Amount: {fmtMoney(target.amount)}</p>
                 {pay.note && <p className="muted">{pay.note}</p>}
                 <button className="btn-slash" onClick={() => setStep(2)}>I have paid</button>

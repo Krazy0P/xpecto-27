@@ -19,13 +19,15 @@ export default function SpaceTimeBg({ page = 'home', dim = false }) {
     let animId = null;
     let isCancelled = false;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance'
-    });
+    THREE.ColorManagement.enabled = false;
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    } catch {
+      
+      return;
+    }
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -380,13 +382,13 @@ export default function SpaceTimeBg({ page = 'home', dim = false }) {
     buildSceneForPage(page);
 
     // Animation Loop
-    const clock = new THREE.Clock();
+    const t0 = performance.now();
 
     const animate = () => {
       if (isCancelled) return;
       animId = requestAnimationFrame(animate);
 
-      const t = clock.getElapsedTime();
+      const t = (performance.now() - t0) / 1000;
       const currentMode = stateRef.current.page;
 
       // Parallax smooth interpolation
@@ -479,6 +481,7 @@ export default function SpaceTimeBg({ page = 'home', dim = false }) {
       if (animId) cancelAnimationFrame(animId);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('resize', handleResize);
+      scene.traverse(o => { o.geometry?.dispose(); [].concat(o.material || []).forEach(m => m.dispose()); });
       renderer.dispose();
       scene.clear();
       buildSceneRef.current = null;

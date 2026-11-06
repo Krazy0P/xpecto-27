@@ -1,5 +1,5 @@
 import StatusBadge from './StatusBadge';
-import { fmtDate, fmtMoney } from '../utils';
+import { capitalize, fmtDate, fmtMoney } from '../utils';
 
 /** Mess registrations with the downloadable confirmation QR once approved. */
 export default function MessList({ items }) {
@@ -7,7 +7,7 @@ export default function MessList({ items }) {
     <ul className="reg-list">
       {items.map(r => (
         <li key={r.id} className="reg-row">
-          <div><h3>{r.messOption[0].toUpperCase() + r.messOption.slice(1)} Mess</h3>
+          <div><h3>{r.messName || `${capitalize(r.messOption)} Mess`}</h3>
             <p className="muted">{fmtDate(r.createdAt)} · {fmtMoney(r.amount)} · Txn {r.transactionId}</p></div>
           <StatusBadge status={r.status} />
           {r.status === 'approved' && (r.confirmationQrUrl ? (

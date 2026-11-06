@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import api from '../api';
 import useAsync from '../hooks/useAsync';
 import StatusBadge from '../components/StatusBadge';
@@ -6,15 +6,9 @@ import MessList from '../components/MessList';
 import ErrorState from '../components/ErrorState';
 import { fmtDate, fmtMoney } from '../utils';
 
-export default function MyRegistrations() {
-  const { data, error, reload } = useAsync(() => Promise.all([api.myRegistrations(), api.myMessRegistrations()]), []);
-  if (error) return <section className="page"><ErrorState message={error.message} onRetry={reload} /></section>;
-  if (!data) return <section className="page" aria-busy="true"><div className="skeleton" style={{ height: 90 }} /><div className="skeleton" style={{ height: 90, marginTop: 12 }} /></section>;
-  const [regs, mess] = data;
-  const events = regs.filter(r => r.kind === 'event'), workshops = regs.filter(r => r.kind === 'workshop');
-  const empty = !regs.length && !mess.length;
-
-  const Group = ({ title, items }) => items.length > 0 && (
+function RegGroup({ title, items }) {
+  if (!items.length) return null;
+  return (
     <>
       <h2 className="sec-title">{title}</h2>
       <ul className="reg-list">
@@ -27,13 +21,22 @@ export default function MyRegistrations() {
       </ul>
     </>
   );
+}
+
+export default function MyRegistrations() {
+  const { data, error, reload } = useAsync(() => Promise.all([api.myRegistrations(), api.myMessRegistrations()]), []);
+  if (error) return <section className="page"><ErrorState message={error.message} onRetry={reload} /></section>;
+  if (!data) return <section className="page" aria-busy="true"><div className="skeleton" style={{ height: 90 }} /><div className="skeleton" style={{ height: 90, marginTop: 12 }} /></section>;
+  const [regs, mess] = data;
+  const events = regs.filter(r => r.kind === 'event'), workshops = regs.filter(r => r.kind === 'workshop');
+  const empty = !regs.length && !mess.length;
 
   return (
     <section className="page">
       <h1 className="page-title page-head">My Registrations</h1>
       {empty && <div className="empty-note"><p>Nothing here yet.</p><Link to="/events" className="btn-slash">Browse events</Link></div>}
-      <Group title="Events" items={events} />
-      <Group title="Workshops" items={workshops} />
+      <RegGroup title="Events" items={events} />
+      <RegGroup title="Workshops" items={workshops} />
       {mess.length > 0 && <><h2 className="sec-title">Mess</h2><MessList items={mess} /></>}
     </section>
   );

@@ -20,7 +20,8 @@ function ImageField({ id, label, value, onChange }) {
   );
 }
 
-function Prizes({ value = [], onChange }) {
+function Prizes({ value, onChange }) {
+  value = Array.isArray(value) ? value : [];
   const set = (i, k, v) => onChange(value.map((r, j) => j === i ? { ...r, [k]: v } : r));
   return (
     <fieldset className="field"><legend>Prize breakdown</legend>
@@ -51,7 +52,7 @@ export default function Fields({ fields, value, set }) {
             <label htmlFor={id}>{f.label}</label>
             {f.type === 'rich' ? <RichText id={id} label={f.label} value={v} onChange={x => set(f.path, x)} />
             : f.type === 'textarea' ? <textarea {...common} rows={4} value={v} onChange={e => set(f.path, e.target.value)} />
-            : f.type === 'select' ? <select {...common} value={v} onChange={e => set(f.path, e.target.value)}>{f.options.map(o => <option key={o}>{o}</option>)}</select>
+            : f.type === 'select' ? <select {...common} value={v} onChange={e => set(f.path, e.target.value)}>{(f.options.includes(v) || v === '' ? f.options : [v, ...f.options]).map(o => <option key={o}>{o}</option>)}</select>
             : f.type === 'datetime' ? <input {...common} type="datetime-local" value={toLocalInput(v)} onChange={e => set(f.path, fromLocalInput(e.target.value))} />
             : f.type === 'number' ? <input {...common} type="number" min="0" value={v} onChange={e => set(f.path, Number(e.target.value))} />
             : <input {...common} type={f.type || 'text'} value={v} onChange={e => set(f.path, e.target.value)} />}

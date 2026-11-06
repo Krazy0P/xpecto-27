@@ -1,8 +1,7 @@
 import { Suspense, useState, useCallback, lazy, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useLocation } from 'react-router';
+import { motion } from 'motion/react';
 import GlitchNav from './components/GlitchNav';
-import Footer from './components/Footer';
 import Loader from './components/Loader';
 import TvStaticTransition from './components/TvStaticTransition';
 import AppRoutes from './routes';
@@ -28,7 +27,6 @@ const routeToPage = (pathname) => {
   if (pathname.startsWith('/workshops')) return 'workshops';
   if (pathname.startsWith('/sponsors')) return 'sponsors';
   if (pathname.startsWith('/team')) return 'team';
-  if (pathname.startsWith('/about')) return 'about';
   return 'home';
 };
 

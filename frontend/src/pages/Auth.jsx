@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import GlitchText from '../components/GlitchText';
@@ -67,7 +67,7 @@ export default function Auth() {
         <GlitchText as="h1" className="page-title">{mode === 'login' ? 'Login' : 'Join XPECTO'}</GlitchText>
         <div className="auth-tabs" role="tablist" aria-label="Account">
           {Object.keys(MODES).map((m, i) => (
-            <button key={m} ref={el => (tabs.current[i] = el)} role="tab" id={`tab-${m}`} aria-selected={mode === m} aria-controls="auth-panel" tabIndex={mode === m ? 0 : -1}
+            <button key={m} ref={el => { tabs.current[i] = el; }} role="tab" id={`tab-${m}`} aria-selected={mode === m} aria-controls="auth-panel" tabIndex={mode === m ? 0 : -1}
               className={`chip ${mode === m ? 'on' : ''}`} onClick={() => switchMode(m)} onKeyDown={e => onTabKey(e, i)}>{m === 'login' ? 'Login' : 'Sign up'}</button>
           ))}
         </div>

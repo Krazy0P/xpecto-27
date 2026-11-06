@@ -23,13 +23,15 @@ export default function SpaceTimeIntro({ onDone }) {
     let animId = null;
     let isCancelled = false;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance'
-    });
+    THREE.ColorManagement.enabled = false;
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    } catch {
+      onDone?.();
+      return;
+    }
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -232,8 +234,11 @@ export default function SpaceTimeIntro({ onDone }) {
     scene.add(cracks);
 
     // Animation variables
-    const clock = new THREE.Clock();
     const startTime = performance.now();
+    let lastFrame = startTime;
+    let shownLogs = 0;
+    let titleShown = false;
+    let glitchOn = false;
     let elapsed = 0;
     const TOTAL_DURATION = 4.8; // seconds
 
@@ -249,14 +254,15 @@ export default function SpaceTimeIntro({ onDone }) {
       animId = requestAnimationFrame(animate);
 
       elapsed = (performance.now() - startTime) / 1000;
-      const delta = clock.getDelta();
+      const now = performance.now();
+      const delta = (now - lastFrame) / 1000;
+      lastFrame = now;
 
       // Check log lines triggers
-      BOOT_LOGS.forEach(item => {
-        if (elapsed >= item.t) {
-          setBootLines(prev => (prev.includes(item.text) ? prev : [...prev, item.text]));
-        }
-      });
+      while (shownLogs < BOOT_LOGS.length && elapsed >= BOOT_LOGS[shownLogs].t) {
+        const text = BOOT_LOGS[shownLogs++].text;
+        setBootLines(prev => (prev.includes(text) ? prev : [...prev, text]));
+      }
 
       // Update shader uniforms
       portalMat.uniforms.uTime.value = elapsed;
@@ -285,17 +291,19 @@ export default function SpaceTimeIntro({ onDone }) {
         tunnelMat.uniforms.uSpeed.value = 10.0 + diveT * 35.0;
 
         // Camera rushes into and through the portal
+        camera.position.x = 0;
+        camera.position.y = 0;
         camera.position.z = 12 - eased * 38;
         camera.rotation.z = elapsed * 1.2;
         camera.fov = 65 + diveT * 35;
         camera.updateProjectionMatrix();
 
-        setGlitchActive(diveT > 0.6);
+        if ((diveT > 0.6) !== glitchOn) { glitchOn = diveT > 0.6; setGlitchActive(glitchOn); }
       }
       // Phase 3: Teleportation arrival & Logo assembly (3.4 - 4.8s)
       else if (elapsed >= 3.4 && elapsed < TOTAL_DURATION) {
-        setShowTitle(true);
-        tunnelMat.uniforms.uAlpha.value = Math.max(0, 1.0 - (elapsed - 4.8) * 1.5);
+        if (!titleShown) { titleShown = true; setShowTitle(true); }
+        tunnelMat.uniforms.uAlpha.value = Math.max(0, 1.0 - (elapsed - 3.4) / 1.4);
         camera.fov = 65;
         camera.rotation.z = 0;
         camera.position.set(0, 0, 10);
@@ -335,6 +343,7 @@ export default function SpaceTimeIntro({ onDone }) {
       isCancelled = true;
       if (animId) cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
+      scene.traverse(o => { o.geometry?.dispose(); [].concat(o.material || []).forEach(m => m.dispose()); });
       renderer.dispose();
       scene.clear();
     };
