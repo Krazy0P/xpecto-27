@@ -18,6 +18,7 @@ pub struct AppDatabase {
     pub fest_info: Collection<Document>,
     pub payment_info: Collection<Document>,
     pub admins: Collection<Document>,
+    pub ambassadors: Collection<Document>,
     pub registrations: Collection<Document>,
 }
 
@@ -34,6 +35,7 @@ impl Clone for AppDatabase {
             fest_info: self.fest_info.clone(),
             payment_info: self.payment_info.clone(),
             admins: self.admins.clone(),
+            ambassadors: self.ambassadors.clone(),
             registrations: self.registrations.clone(),
         }
     }
@@ -58,6 +60,7 @@ impl AppDatabase {
             fest_info: db.collection("fest_info"),
             payment_info: db.collection("payment_info"),
             admins: db.collection("admins"),
+            ambassadors: db.collection("ambassadors"),
             registrations: db.collection("registrations"),
         };
         db.ensure_indexes().await?;
@@ -89,6 +92,9 @@ impl AppDatabase {
         self.sponsors.create_index(idx(doc! { "tier": 1 }), None).await?;
 
         self.admins
+            .create_index(unique_idx(doc! { "email": 1 }), None)
+            .await?;
+        self.ambassadors
             .create_index(unique_idx(doc! { "email": 1 }), None)
             .await?;
 
@@ -166,7 +172,7 @@ impl AppDatabase {
     pub fn collection_names() -> Vec<&'static str> {
         vec![
             "users", "events", "workshops", "team_members", "sponsors",
-            "mess_options", "fest_info", "payment_info", "admins", "registrations",
+            "mess_options", "fest_info", "payment_info", "admins", "ambassadors", "registrations",
         ]
     }
 }

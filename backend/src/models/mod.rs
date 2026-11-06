@@ -2,6 +2,7 @@ use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 
 pub mod admin;
+pub mod ambassador;
 pub mod event;
 pub mod fest;
 pub mod mess;

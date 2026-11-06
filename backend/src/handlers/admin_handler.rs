@@ -4,12 +4,14 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
 
+use crate::database::oid_from_hex;
 use crate::middleware::AppState;
 use crate::middleware::auth::{CurrentUser, require_admin};
 use crate::services::public_service::PublicService;
 use crate::services::registration_service::RegistrationService;
 use crate::models::registration::RegistrationQuery;
 use crate::models::admin::AddAdminInput;
+use crate::errors::AppError;
 
 fn require(admin_user: &CurrentUser) -> Result<(), crate::errors::AppError> {
     if admin_user.role == "admin" {
@@ -231,12 +233,53 @@ pub async fn admin_registrations(
     State(state): State<AppState>,
     Extension(_current_user): Extension<CurrentUser>,
     Query(query): Query<RegistrationQuery>,
-) -> Result<Json<serde_json::Value>, crate::errors::AppError> {
+) -> Result<impl IntoResponse, crate::errors::AppError> {
     require(&_current_user)?;
     let svc = RegistrationService::new(state.db.clone());
     let regs = svc.list_registrations(&query).await?;
-    let value = serde_json::json!({ "registrations": regs });
-    Ok(Json(value))
+    Ok(Json(json!({ "registrations": regs })))
+}
+
+pub async fn admin_create_registration(
+    State(state): State<AppState>,
+    Extension(_current_user): Extension<CurrentUser>,
+    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+) -> Result<impl IntoResponse, crate::errors::AppError> {
+    require(&_current_user)?;
+    let svc = RegistrationService::new(state.db.clone());
+    let kind = body.get("kind").and_then(|v| v.as_str()).unwrap_or("event").to_string();
+    let target_id_s = body.get("targetId").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let target_name = body.get("targetName").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let transaction_id = body.get("transactionId").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let screenshot_url = body.get("screenshotUrl").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let amount = body.get("amount").and_then(|v| v.as_i64()).unwrap_or(0);
+    let team_name = body.get("teamName").and_then(|v| v.as_str()).map(|s| s.to_string());
+    let team_members: Vec<crate::models::registration::TeamMemberReg> = body
+        .get("teamMembers")
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default();
+
+    let target_id = oid_from_hex(&target_id_s).map_err(|_| AppError::Validation("Invalid targetId".into()))?;
+    let user_id = body
+        .get("user")
+        .and_then(|v| v.get("id"))
+        .and_then(|v| v.as_str())
+        .and_then(|s| oid_from_hex(s).ok())
+        .unwrap_or_default();
+
+    let reg = svc.create_event_registration(
+        &user_id,
+        &kind,
+        &target_id,
+        &target_name,
+        &transaction_id,
+        &screenshot_url,
+        amount,
+        team_name,
+        team_members,
+    ).await?;
+
+    Ok(Json(json!({ "registration": reg })))
 }
 
 pub async fn admin_decide_registration(

@@ -3,6 +3,7 @@ use axum::Router;
 use crate::middleware::AppState;
 
 mod admin;
+mod ambassador;
 mod auth;
 mod mess;
 mod public;
@@ -14,5 +15,6 @@ pub fn routes(state: AppState) -> Router {
         .merge(public::routes(state.clone()))
         .merge(registrations::routes(state.clone()))
         .merge(mess::routes(state.clone()))
-        .merge(admin::routes(state))
+        .merge(admin::routes(state.clone()))
+        .merge(ambassador::routes(state))
 }

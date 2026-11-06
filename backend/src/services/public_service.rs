@@ -5,6 +5,8 @@ use tracing::info;
 use crate::database::{AppDatabase, oid_from_hex};
 use crate::errors::{AppError, AppResult};
 use crate::models::{
+    admin::AddAdminInput,
+    ambassador::{Ambassador, AmbassadorInput},
     event::{Event, EventInput},
     fest::{FestInfo, FestInfoInput},
     mess::MessOption,
@@ -582,6 +584,91 @@ impl PublicService {
         match updated {
             Some(d) => bson::from_bson::<MessOption>(bson::Bson::Document(d)).map_err(|e| AppError::Internal(e.to_string())),
             None => Err(AppError::NotFound("Mess option not found.".into())),
+        }
+    }
+
+    pub async fn create_ambassador(&self, input: AmbassadorInput) -> AppResult<Ambassador> {
+        let exists = self
+            .db
+            .ambassadors
+            .count_documents(doc! { "email": &input.email }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+        if exists > 0 {
+            return Err(AppError::Conflict(
+                "An application with this email already exists.".into(),
+            ));
+        }
+        let now = crate::database::now();
+        let doc = doc! {
+            "name": &input.name,
+            "email": &input.email,
+            "phone": &input.phone,
+            "college": &input.college,
+            "city": &input.city,
+            "course": &input.course,
+            "year": &input.year,
+            "social_link": &input.social_link,
+            "motivation": &input.motivation,
+            "reach": &input.reach,
+            "status": "pending",
+            "created_at": now,
+            "updated_at": now,
+        };
+        let result = self
+            .db
+            .ambassadors
+            .insert_one(doc, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+        let id = result.inserted_id.as_object_id().unwrap_or_default();
+        let doc = self
+            .db
+            .ambassadors
+            .find_one(doc! { "_id": id }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?
+            .ok_or_else(|| AppError::NotFound("Ambassador not found after create.".into()))?;
+        bson::from_bson::<Ambassador>(bson::Bson::Document(doc))
+            .map_err(|e| AppError::Internal(e.to_string()))
+    }
+
+    pub async fn list_ambassadors(&self) -> AppResult<Vec<Ambassador>> {
+        let mut cursor = self
+            .db
+            .ambassadors
+            .find(doc! {}, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+        let mut out: Vec<Ambassador> = Vec::new();
+        while cursor.advance().await.map_err(|e| AppError::Internal(e.to_string()))? {
+            let doc: bson::Document = cursor.deserialize_current().map_err(|e| AppError::Internal(e.to_string()))?;
+            let item: Ambassador = bson::from_bson(bson::Bson::Document(doc))
+                .map_err(|e| AppError::Internal(e.to_string()))?;
+            out.push(item);
+        }
+        Ok(out)
+    }
+
+    pub async fn update_ambassador_status(&self, id: &str, status: &str) -> AppResult<Ambassador> {
+        let oid = oid_from_hex(id).map_err(|_| AppError::NotFound("Invalid ambassador id.".into()))?;
+        let now = crate::database::now();
+        let doc = self
+            .db
+            .ambassadors
+            .find_one_and_update(
+                doc! { "_id": oid },
+                doc! { "$set": { "status": status, "updated_at": now } },
+                mongodb::options::FindOneAndUpdateOptions::builder()
+                    .return_document(mongodb::options::ReturnDocument::After)
+                    .build(),
+            )
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+        match doc {
+            Some(d) => bson::from_bson::<Ambassador>(bson::Bson::Document(d))
+                .map_err(|e| AppError::Internal(e.to_string())),
+            None => Err(AppError::NotFound("Ambassador not found.".into())),
         }
     }
 }
