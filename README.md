@@ -1,101 +1,200 @@
 # XPECTO-27 — IIT Mandi Techfest Website
 
-Rust + Axum + Tera + SQLite website for **XPECTO-27**, the annual techfest of IIT Mandi.
+Website for **XPECTO-27**, the annual technical festival of IIT Mandi.
 
-Tabs: **Home (`/`) · Competitions (`/competitions`) · Workshops (`/workshops`) · About (`/about`)**,
-plus **Announcements (`/posts`)** — the original blog engine, rebranded as the fest notice board.
+The project consists of a React-based frontend and a Rust-based backend.
 
-## 1. Quick start
+## Prerequisites
+
+Make sure the following tools are installed:
+
+- **Git** – Version control
+- **Node.js and npm** – Frontend development
+- **Rust (stable)** – Backend development
+- **Cargo** – Rust package manager (included with Rust)
+- **SQLite** – Database
+
+Verify installations:
 
 ```bash
-# prerequisites: Rust stable, sqlite3
-cp .env.example .env   # or check .env -> DATABASE_URL=sqlite:blog.db
+git --version
+node --version
+npm --version
+rustc --version
+cargo --version
+sqlite3 --version
+```
+
+## Tech Stack
+
+**Frontend**
+- React 18
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
+- Framer Motion
+- Three.js
+
+**Backend**
+- Rust
+- Axum
+- Tera
+- SQLite
+- SQLx
+
+## Project Structure
+
+```text
+xpecto-27/
+├── frontend/          # React + Vite frontend
+│   ├── src/
+│   ├── public/
+│   └── package.json
+│
+├── src/
+│   └── main.rs        # Backend routes and handlers
+│
+├── templates/         # Tera HTML templates
+├── static/            # Static backend assets
+├── migrations/        # SQLite migrations
+├── .env               # Environment configuration
+├── Cargo.toml
+└── README.md
+```
+
+## Getting Started
+
+### 1. Clone the repository
+
+Open VS Code and launch a terminal (`Ctrl + ~`).
+
+```bash
+git clone https://github.com/XPECTO-IITMANDI/xpecto-27.git
+cd xpecto-27
+```
+
+Open the cloned project in VS Code:
+
+```bash
+code .
+```
+
+### 2. Configure the Backend Environment
+
+In the project root, create a `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Set the database URL inside `.env`:
+
+```env
+DATABASE_URL=sqlite:blog.db
+```
+
+### 3. Run the Frontend and Backend
+
+**Important:** The frontend and backend must run simultaneously in two separate terminals.
+
+#### Terminal 1 — Frontend
+
+1. Open the project in VS Code.
+2. Open the first terminal using `Ctrl + ~`.
+3. Navigate to the frontend directory:
+
+```bash
+cd frontend
+```
+
+4. Install dependencies:
+
+```bash
+npm install
+```
+
+5. Start the frontend development server:
+
+```bash
+npm run dev
+```
+
+6. Open the local URL displayed in the terminal (usually `http://localhost:5173`).
+
+Keep this terminal running.
+
+#### Terminal 2 — Backend
+
+1. In VS Code, click the `+` icon in the terminal panel to open a **second terminal**.
+2. Make sure the second terminal is in the project root (`xpecto-27`), not inside `frontend/`.
+
+If necessary, navigate to the project root:
+
+```bash
+cd ..
+```
+
+3. Check the backend:
+
+```bash
+cargo check
+```
+
+4. Start the backend:
+
+```bash
 cargo run
-# open http://127.0.0.1:3000
 ```
 
-Routes:
+5. The backend will run at:
 
-| URL | Page | Template |
-|---|---|---|
-| `/`, `/home` | Home — hero, stats, highlights, dates, sponsors, CTA | `templates/home.html` |
-| `/competitions` | 9 competitions + HackNight flagship + registration steps | `templates/competitions.html` |
-| `/workshops` | 5 workshops schedule + fees/seats | `templates/workshops.html` |
-| `/about` | Story, fest details, team, sponsors, travel | `templates/about.html` |
-| `/posts` | Announcements list (paginated) | `templates/posts/list.html` |
-| `/posts/new`, `/posts/:id`, `/posts/:id/edit` | Create/read/update/delete announcement | `templates/posts/*.html` |
+`http://127.0.0.1:3000`
 
-Shared layout (nav, footer, styles, JS): `templates/base.html`.
+Keep this terminal running too.
 
-## 2. Project structure
+**Note:** Both terminals must remain open while developing. Use `Ctrl + C` in the respective terminal to stop a server.
 
-```
-expecto-27/
-├── src/main.rs          # all routes + handlers (fest pages + blog CRUD)
-├── templates/
-│   ├── base.html        # nav (active_page), footer, Tailwind, scroll-reveal JS
-│   ├── home.html        # hero, stats, highlights, dates, updates, sponsors, CTA
-│   ├── competitions.html# flagship hackathon, 9 event cards, how-to-register
-│   ├── workshops.html   # day-wise schedule cards
-│   ├── about.html       # story, details, team, sponsors, travel
-│   └── posts/           # announcements CRUD (list/new/show/edit)
-├── static/              # static files served at /static (currently empty)
-├── migrations/          # sqlx SQLite migrations (posts table)
-├── blog.db              # local SQLite DB (git-ignored ideally)
-├── .env                 # DATABASE_URL=sqlite:blog.db
-└── Cargo.toml
-```
+## Website Pages
 
-## 3. How it works (code tour)
+| Route | Description |
+|---|---|
+| `/` | Home |
+| `/competitions` | Competitions and HackNight |
+| `/workshops` | Workshop schedules and details |
+| `/about` | About the fest, team and sponsors |
+| `/posts` | Announcements / Notice Board |
 
-`src/main.rs`:
-- `AppState { db: SqlitePool, tera: Tera }` shared via `Arc` (`State<Arc<AppState>>`).
-- Fest handlers (`home`, `competitions`, `workshops`, `about`) each insert
-  `active_page` into a Tera `Context` and call `render_template()`.
-- `base.html` highlights nav with `{% if active_page == 'home' %}active{% endif %}`
-  (with `| default(value='')` so blog form pages without the var don't error).
-- Blog handlers (`list_posts`, `create_post`, …) are unchanged fest-wise except they
-  now set `active_page = "blog"` so the **Announcements** nav item lights up.
-  Pagination still uses `page`/`per_page` — deliberately separate from `active_page`.
-- `ServeDir::new("static")` serves `/static/*`.
+## Development Commands
 
-`templates/base.html`:
-- Dark theme (`#05060f` body) + Tailwind CDN + Space Grotesk/Inter fonts;
-  custom CSS: `.glass-card`, `.gradient-text`, `.card-hover`, `.nav-link`,
-  `.floating-orb`, `.pulse-glow`, `.scroll-reveal` + IntersectionObserver JS.
-- Dynamic particle background: fixed full-viewport `<canvas id="particles">`
-  painted by vanilla JS — ~50-160 randomly drifting/twinkling particles in
-  emerald/lime/mint/green/teal, faint connecting lines, cursor repulsion,
-  edge wrapping, DPR-aware resize, disabled under `prefers-reduced-motion`.
-- Colour scheme: black (`#05060f`) + green (emerald primary, lime secondary;
-  red kept only for destructive Delete buttons).
-  Page sections are transparent/glass so particles show through everywhere.
-- Fixed dark-glass navbar, 4 fest links + Announcements + Register button; dark footer.
-
-## 4. Customising content
-
-- **Dates/fees/prizes/contacts**: edit the HTML files directly (search `February`,
-  `₹`, `expecto@iitmandi.ac.in`). No DB needed for fest pages — all static.
-- **Team/sponsors**: `about.html` `#team` / `#sponsors` sections.
-- **Add a tab** (e.g. `/schedule`): 1) create `templates/schedule.html`
-  extending `base.html`, 2) add handler + `.route("/schedule", get(schedule))`
-  in `main.rs`, 3) add nav link in `base.html`.
-- **Real registrations**: currently Register buttons link to `/posts` (demo).
-  Add a `registrations` table + migration, a `POST /register` handler, and a form.
-
-## 5. Dev commands
+**Frontend (inside `frontend/`):**
 
 ```bash
-cargo check      # fast typecheck
-cargo run        # dev server on :3000 (runs migrations automatically)
+npm install
+npm run dev
+npm run build
+npm run preview
+```
+
+**Backend (from project root):**
+
+```bash
+cargo check
+cargo run
+cargo build
 cargo build --release
 ```
 
-DB reset: `rm blog.db && cargo run` (migrations re-apply on boot).
+## Notes
 
-## 6. Known limitations / TODO
+- Frontend and backend run separately during development.
+- The backend uses Tera templates and SQLite.
+- Database migrations run automatically when the backend starts.
+- Announcements support creating, viewing, editing, and deleting posts.
+- Registration functionality and admin authentication are future improvements.
 
-- Tailwind via CDN (fine for demo; vendor it for offline/production).
-- No auth on `/posts/new` — anyone can post announcements. Add admin login before launch.
-- Placeholder team names, sponsor logos (text), contact phone.
-- `static/` is empty; add `logo.svg`, images, favicon and reference via `/static/...`.
+---
+
+**XPECTO-27 | IIT Mandi**
+
+*Building technology, innovation, and experiences.*
