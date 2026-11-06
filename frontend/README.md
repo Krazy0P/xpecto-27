@@ -1,6 +1,6 @@
 # XPECTO Frontend (IIT Mandi TechFest)
 
-React 19 + Vite 8 + React Router 7 + Tailwind 4 + Motion. Built against `API_CONTRACT.md` (v1); works with mock data until the Rust backend exists.
+React 19 + Vite 8 + React Router 7 + Tailwind 4 + Motion. The public content is loaded from the API so events, workshops, team members, sponsors, and mess options can be managed in a database such as MongoDB.
 
 ## Setup
 ```bash
@@ -13,23 +13,27 @@ npm run build && npm run preview
 ## Environment variables
 | Var | Meaning |
 |---|---|
-| `VITE_USE_MOCK` | `false` = real server; anything else (or unset) = in-memory data from `src/mock/*.json`, no network. |
+| `VITE_USE_MOCK` | Set to `true` only for local mock data. Defaults to live API mode. |
 | `VITE_API_URL` | Backend base URL, e.g. `http://127.0.0.1:3000`. Routes live under `/api`. |
 
 Restart `npm run dev` after editing `.env`.
 
-## Mock mode quick tour
+## Optional mock mode
 - Log in with **any** email/password. `b25347@students.iitmandi.ac.in` becomes admin and shows the Admin link.
 - Transaction ID `DUPLICATE123` always returns 409 `DUPLICATE_TRANSACTION`. Registering twice for the same event returns `ALREADY_REGISTERED`.
 - Data resets on reload (login persists via localStorage).
 
-## Switching to the real backend
+## Connecting a MongoDB-backed API
 1. Set `VITE_USE_MOCK=false` and `VITE_API_URL=<backend URL>`.
 2. Backend must allow CORS for the frontend origin **with credentials** and use an httpOnly session cookie (`SameSite=None; Secure` if the origins are on different sites).
 3. All network code is in `src/api.js`; nothing else calls axios/fetch.
 4. Uploaded image URLs may be relative (`/static/uploads/a.jpg`); `api.js` prefixes them with `VITE_API_URL` on read and strips on write.
 5. Open point: the contract says both `/api/paymentinfo` and `/api/payment-info`. The frontend uses `/api/payment-info` (one line in `api.js`).
 6. `teamMembers` is sent as a JSON string of `[{ "name": "..." }]`. Agree on this shape with the backend.
+
+The API should expose `GET /api/events`, `/api/workshops`, `/api/team`, `/api/sponsors`, and `/api/messoptions`, plus the matching admin create/update/delete endpoints already used by `src/api.js`. MongoDB documents may use either `id` or `_id`; the frontend normalizes both.
+
+Admin participant registration uses `POST /api/admin/registrations` with `{ participantName, participantEmail, participantPhone, college, visitDays, competitions, competitionNames }`. Store these fields on the registration document, set `kind` to `event`, `status` to `approved`, `source` to `admin`, keep `competitions` as an array of event IDs, and keep `competitionNames` as a display snapshot. The admin list endpoint should return these fields.
 
 ## Optional Express mock server
 ```bash

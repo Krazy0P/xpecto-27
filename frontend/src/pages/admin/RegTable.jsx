@@ -49,8 +49,8 @@ export default function RegTable({ mess = false }) {
           <thead><tr><th>User</th><th>{mess ? 'Mess' : 'Target'}</th><th>Txn ID</th><th>₹</th><th>Date</th><th>Proof</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>{rows.map(r => (
             <tr key={r.id}>
-              <td>{r.user?.name}<br /><small>{r.user?.email}</small></td>
-              <td>{mess ? r.messOption : `${r.targetName} (${r.kind})`}</td>
+              <td>{r.participantName || r.user?.name}<br /><small>{r.participantEmail || r.user?.email}</small><br /><small>{r.college}{r.visitDays ? ` · ${r.visitDays} day(s)` : ''}</small></td>
+              <td>{mess ? r.messOption : `${r.targetName || r.competitions?.length + ' competition(s)'} (${r.kind})`}{r.competitionNames?.length > 0 && <><br /><small>{r.competitionNames.join(', ')}</small></>}</td>
               <td>{r.transactionId}</td><td>{r.amount}</td><td>{fmtDate(r.createdAt)}</td>
               <td>{r.screenshotUrl ? <a href={r.screenshotUrl} target="_blank" rel="noreferrer">View</a> : '—'}</td>
               <td><StatusBadge status={r.status} /></td>

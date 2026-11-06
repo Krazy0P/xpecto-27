@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router';
 import DOMPurify from 'dompurify';
 import api from '../api';
@@ -7,7 +7,7 @@ import Countdown from '../components/Countdown';
 import CountUp from '../components/CountUp';
 import GlitchText from '../components/GlitchText';
 import ErrorState from '../components/ErrorState';
-import { fmtMoney, groupSponsors, istDayCount } from '../utils';
+import { fmtDate, fmtMoney, istDayCount } from '../utils';
 
 // Simple outline icons for the highlight list
 const PATHS = {
@@ -31,34 +31,15 @@ export default function About() {
   const { isAdmin } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const flowRef = useRef(null);
-
   const load = useCallback(() => {
     setError(null);
     setData(null);
-    Promise.all([api.getFest(), api.getEvents(), api.getWorkshops(), api.getSponsors()])
-      .then(([fest, events, workshops, sponsors]) => setData({ fest, events, workshops, sponsors }))
+    Promise.all([api.getFest(), api.getEvents(), api.getWorkshops()])
+      .then(([fest, events, workshops]) => setData({ fest, events, workshops }))
       .catch(e => setError(e.message));
   }, []);
 
   useEffect(load, [load]);
-
-  useEffect(() => {
-    if (!flowRef.current || !data) return;
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible');
-      });
-    }, { threshold: 0.1 });
-
-    const cards = flowRef.current.querySelectorAll('.st-sponsor-flow-card');
-    cards.forEach((c, idx) => {
-      c.style.transitionDelay = `${(idx % 6) * 0.07}s`;
-      obs.observe(c);
-    });
-
-    return () => obs.disconnect();
-  }, [data]);
 
   if (error) {
     return (
@@ -78,7 +59,7 @@ export default function About() {
     );
   }
 
-  const { fest, events, workshops, sponsors } = data;
+  const { fest, events, workshops } = data;
   const days = istDayCount(fest.startDate, fest.endDate);
   const ticker = [...events.map(e => e.name), ...workshops.map(w => w.title)];
   const stats = [
@@ -87,13 +68,6 @@ export default function About() {
     { n: events.reduce((s, e) => s + (e.prizePool || 0), 0), l: 'In prizes', prefix: '₹' },
     { n: days, l: 'Days' }
   ];
-
-  const grouped = groupSponsors(sponsors);
-  const validSponsors = grouped.all;
-  const titleSponsors = grouped.title;
-  const goldSponsors = grouped.gold;
-  const diamondSponsors = grouped.diamond;
-  const partnerSponsors = [...grouped.silver, ...grouped.partner];
 
   return (
     <section className="page about st-page-enter">
@@ -111,7 +85,7 @@ export default function About() {
 
         {/* High-Tech Telemetry HUD Coordinates */}
         <div className="st-hero-badge">
-          <span>[ REALITY RECONSTRUCTED // 20–22 FEB 2027 · IIT MANDI ]</span>
+          <span>[ REALITY RECONSTRUCTED // {fmtDate(fest.startDate)}{fest.endDate && ` - ${fmtDate(fest.endDate)}`} · {fest.venue || 'VENUE TBD'} ]</span>
         </div>
 
         {/* Cyber Neon Countdown Timer */}
@@ -186,78 +160,6 @@ export default function About() {
           </div>
         ))}
       </div>
-
-      {/* Tiered Sponsors with Portal Frames & Flowing Partners (Logos Only) */}
-      {validSponsors.length > 0 && (
-        <div style={{ marginTop: '5rem', marginBottom: '4rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2 className="st-section-heading">
-              <GlitchText text="SPONSORS & PARTNERS" tag="span" />
-            </h2>
-            <p style={{ fontFamily: 'var(--st-mono)', color: 'var(--st-green)', fontSize: '0.82rem', letterSpacing: '0.2em' }}>
-              [ INTERDIMENSIONAL ALLIANCE MATRIX ]
-            </p>
-          </div>
-
-          {/* Title Sponsor - Static Dedicated Portal */}
-          {titleSponsors.length > 0 && (
-            <div style={{ marginBottom: '3rem' }}>
-              <div className="st-sponsor-tier-label title">✦ TITLE SPONSOR ✦</div>
-              {titleSponsors.map(s => (
-                <a key={s.id} href={s.websiteUrl} target="_blank" rel="noreferrer noopener" className="st-sponsor-title-card">
-                  <div className="st-sponsor-tag">[ TITLE SPONSOR ]</div>
-                  <img src={s.logoUrl} alt={s.name} loading="lazy" decoding="async" />
-                </a>
-              ))}
-            </div>
-          )}
-
-          {/* Gold Sponsors - Static Dedicated Cards */}
-          {goldSponsors.length > 0 && (
-            <div style={{ marginBottom: '3rem' }}>
-              <div className="st-sponsor-tier-label gold">◆ GOLD SPONSORS ◆</div>
-              <div className="st-sponsor-gold-grid">
-                {goldSponsors.map(s => (
-                  <a key={s.id} href={s.websiteUrl} target="_blank" rel="noreferrer noopener" className="st-sponsor-gold-card">
-                    <div className="st-sponsor-tag gold">[ GOLD SPONSOR ]</div>
-                    <img src={s.logoUrl} alt={s.name} loading="lazy" decoding="async" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Diamond Sponsors - Static Dedicated Cards */}
-          {diamondSponsors.length > 0 && (
-            <div style={{ marginBottom: '3rem' }}>
-              <div className="st-sponsor-tier-label diamond">❖ DIAMOND SPONSORS ❖</div>
-              <div className="st-sponsor-diamond-grid">
-                {diamondSponsors.map(s => (
-                  <a key={s.id} href={s.websiteUrl} target="_blank" rel="noreferrer noopener" className="st-sponsor-diamond-card">
-                    <div className="st-sponsor-tag diamond">[ DIAMOND SPONSOR ]</div>
-                    <img src={s.logoUrl} alt={s.name} loading="lazy" decoding="async" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Flowing Partners - Flows in one by one on scroll with [SPONSOR] tag */}
-          {partnerSponsors.length > 0 && (
-            <div style={{ marginTop: '3rem' }}>
-              <div className="st-sponsor-tier-label partner">● FLOWING PARTNER NETWORK ●</div>
-              <div className="st-sponsor-flow" ref={flowRef}>
-                {partnerSponsors.map(s => (
-                  <a key={s.id} href={s.websiteUrl} target="_blank" rel="noreferrer noopener" className="st-sponsor-flow-card">
-                    <span className="st-sponsor-tag partner">[ SPONSOR ]</span>
-                    <img src={s.logoUrl} alt={s.name} loading="lazy" decoding="async" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Contact Line */}
       <div className="contact-line st-contact-line">

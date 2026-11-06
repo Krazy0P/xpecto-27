@@ -8,7 +8,7 @@ import mess from './mock/mess.json';
 import payment from './mock/payment.json';
 import { SPONSOR_TIERS, TEAM_ROLES, canonical, sameId } from './utils';
 
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 const http = axios.create({ baseURL: BASE, withCredentials: true });
 
@@ -35,6 +35,7 @@ const str = v => v == null ? '' : String(v);
 const num = (v, d = 0) => { const n = Number(v); return v !== '' && v != null && Number.isFinite(n) ? n : d; };
 const iso = v => { const d = v ? new Date(v) : null; return d && !Number.isNaN(d.getTime()) ? d.toISOString() : ''; };
 const nullableStr = v => v ? String(v) : null;
+const entityId = o => o.id ?? o._id;
 
 const normPrizes = v => (Array.isArray(v) ? v : Object.entries(toObject(v)).map(([position, amount]) => ({ position, amount })))
   .map(p => ({ position: str(p?.position), amount: num(p?.amount) }));
@@ -49,24 +50,26 @@ const normUser = u => { const o = toObject(u); return { ...o, id: o.id, name: st
 const normFest = f => { const o = toObject(f); return { ...o, name: str(o.name), tagline: str(o.tagline), startDate: iso(o.startDate), endDate: iso(o.endDate), venue: str(o.venue), aboutHtml: str(o.aboutHtml), heroImageUrl: str(o.heroImageUrl), contactEmail: str(o.contactEmail), contactPhone: str(o.contactPhone) }; };
 const normEvent = e => {
   const o = toObject(e), c = toObject(o.contact);
-  return { ...o, id: o.id, slug: str(o.slug), name: str(o.name), category: str(o.category), description: str(o.description), rules: str(o.rules), imageUrl: str(o.imageUrl),
+  return { ...o, id: entityId(o), slug: str(o.slug), name: str(o.name), category: str(o.category), description: str(o.description), rules: str(o.rules), imageUrl: str(o.imageUrl),
     startTime: iso(o.startTime), endTime: iso(o.endTime), venue: str(o.venue), prizePool: num(o.prizePool), prizeBreakdown: normPrizes(o.prizeBreakdown),
     registrationFee: num(o.registrationFee), teamSize: normTeamSize(o.teamSize), registrationOpen: o.registrationOpen !== false && o.registrationOpen !== 'false', contact: { name: str(c.name), phone: str(c.phone) } };
 };
 const normWorkshop = w => {
   const o = toObject(w), total = num(o.seatsTotal);
-  return { ...o, id: o.id, title: str(o.title), description: str(o.description), imageUrl: str(o.imageUrl), speaker: str(o.speaker), startTime: iso(o.startTime), endTime: iso(o.endTime),
+  return { ...o, id: entityId(o), title: str(o.title), description: str(o.description), imageUrl: str(o.imageUrl), speaker: str(o.speaker), startTime: iso(o.startTime), endTime: iso(o.endTime),
     venue: str(o.venue), fee: num(o.fee), seatsTotal: total, seatsLeft: total ? Math.min(total, Math.max(0, num(o.seatsLeft))) : Math.max(0, num(o.seatsLeft)) };
 };
-const normMember = m => { const o = toObject(m); return { ...o, id: o.id, name: str(o.name), role: canonical(o.role, TEAM_ROLES, 'Member'), department: str(o.department), photoUrl: str(o.photoUrl), email: str(o.email), linkedinUrl: str(o.linkedinUrl), order: num(o.order, 9999) }; };
-const normSponsor = s => { const o = toObject(s); return { ...o, id: o.id, name: str(o.name), tier: canonical(o.tier, SPONSOR_TIERS, 'Partner'), logoUrl: str(o.logoUrl), websiteUrl: str(o.websiteUrl) }; };
-const normMess = m => { const o = toObject(m); return { ...o, id: str(o.id), name: str(o.name), description: str(o.description), price: num(o.price), imageUrl: str(o.imageUrl) }; };
+const normMember = m => { const o = toObject(m); return { ...o, id: entityId(o), name: str(o.name), role: canonical(o.role, TEAM_ROLES, 'Member'), department: str(o.department), photoUrl: str(o.photoUrl), email: str(o.email), linkedinUrl: str(o.linkedinUrl), order: num(o.order, 9999) }; };
+const normSponsor = s => { const o = toObject(s); return { ...o, id: entityId(o), name: str(o.name), tier: canonical(o.tier, SPONSOR_TIERS, 'Partner'), logoUrl: str(o.logoUrl), websiteUrl: str(o.websiteUrl) }; };
+const normMess = m => { const o = toObject(m); return { ...o, id: str(entityId(o)), name: str(o.name), description: str(o.description), price: num(o.price), imageUrl: str(o.imageUrl) }; };
 const normPayment = p => { const o = toObject(p); return { ...o, qrImageUrl: str(o.qrImageUrl), upiId: str(o.upiId), note: str(o.note) }; };
 const STATUSES = ['pending', 'approved', 'rejected'];
 const normReg = r => {
   const o = toObject(r), target = toObject(o.target);
   return { ...o, id: o.id, kind: o.kind === 'workshop' ? 'workshop' : 'event', targetId: o.targetId ?? target.id, targetName: str(o.targetName || target.name || target.title), transactionId: str(o.transactionId),
-    screenshotUrl: str(o.screenshotUrl), status: canonical(o.status, STATUSES, 'pending'), amount: num(o.amount), createdAt: iso(o.createdAt), teamName: str(o.teamName), user: o.user ? normUser(o.user) : null };
+    screenshotUrl: str(o.screenshotUrl), status: canonical(o.status, STATUSES, 'pending'), amount: num(o.amount), createdAt: iso(o.createdAt), teamName: str(o.teamName),
+    participantName: str(o.participantName || o.user?.name), participantEmail: str(o.participantEmail || o.user?.email), participantPhone: str(o.participantPhone || o.user?.phone),
+    college: str(o.college || o.user?.college), visitDays: num(o.visitDays), competitions: Array.isArray(o.competitions) ? o.competitions.map(String) : [], competitionNames: Array.isArray(o.competitionNames) ? o.competitionNames.map(String) : [], user: o.user ? normUser(o.user) : null };
 };
 const normMessReg = r => {
   const o = toObject(r), opt = toObject(o.messOption);
@@ -168,6 +171,13 @@ const api = {
       const f = new FormData(); f.append('file', file); return http.post('/api/admin/uploads', f);
     },
     registrations: params => (USE_MOCK ? needAdmin() || delay(db.regs.map(r => ({ ...r, user: getUser() }))) : http.get('/api/admin/registrations', { params })).then(mapList(normReg)),
+    createRegistration: b => {
+      if (!USE_MOCK) return http.post('/api/admin/registrations', b).then(normReg);
+      const admin = needAdmin(); if (admin?.then) return admin;
+      const row = { ...b, id: nextId++, kind: 'event', status: 'approved', amount: 0, transactionId: '', createdAt: new Date().toISOString(), source: 'admin' };
+      db.regs.push(row);
+      return delay(row).then(normReg);
+    },
     decide: (id, action, reason) => USE_MOCK
       ? needAdmin() || decideRow('regs', id, action)
       : http.post(`/api/admin/registrations/${id}/${action}`, action === 'reject' ? { reason } : undefined),
