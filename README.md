@@ -1,6 +1,6 @@
-# EXPECTO-27 — IIT Mandi Techfest Website
+# XPECTO-27 — IIT Mandi Techfest Website
 
-Rust + Axum + Tera + SQLite website for **EXPECTO-27**, the annual techfest of IIT Mandi.
+Rust + Axum + Tera + SQLite website for **XPECTO-27**, the annual techfest of IIT Mandi.
 
 Tabs: **Home (`/`) · Competitions (`/competitions`) · Workshops (`/workshops`) · About (`/about`)**,
 plus **Announcements (`/posts`)** — the original blog engine, rebranded as the fest notice board.
