@@ -10,17 +10,22 @@ pub struct Workshop {
     pub id: Option<ObjectId>,
     pub title: String,
     pub description: String,
+    #[serde(alias = "image_url")]
     pub image_url: String,
     pub speaker: String,
+    #[serde(alias = "start_time")]
     pub start_time: Option<DateTime>,
+    #[serde(alias = "end_time")]
     pub end_time: Option<DateTime>,
     pub venue: String,
     pub fee: i64,
+    #[serde(alias = "seats_total")]
     pub seats_total: i32,
+    #[serde(alias = "seats_left")]
     pub seats_left: i32,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "created_at", serialize_with = "serialize_dt")]
     pub created_at: Option<DateTime>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "updated_at", serialize_with = "serialize_dt")]
     pub updated_at: Option<DateTime>,
 }
 

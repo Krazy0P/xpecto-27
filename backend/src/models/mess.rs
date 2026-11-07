@@ -1,16 +1,15 @@
-use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
-
-use crate::models::{serialize_dt, serialize_oid};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MessOption {
-    #[serde(alias = "_id", serialize_with = "serialize_oid")]
-    pub id: Option<ObjectId>,
+    #[serde(alias = "_id")]
+    pub id: Option<String>,
     pub name: String,
+    #[serde(alias = "description")]
     pub description: String,
     pub price: i64,
+    #[serde(alias = "image_url")]
     pub image_url: String,
 }
 

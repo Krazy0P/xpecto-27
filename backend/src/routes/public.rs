@@ -8,7 +8,7 @@ pub fn routes(state: AppState) -> Router {
     Router::new()
         .route("/fest", get(public_handler::get_fest))
         .route("/events", get(public_handler::get_events))
-        .route("/events/:id", get(public_handler::get_event))
+        .route("/events/{id}", get(public_handler::get_event))
         .route("/workshops", get(public_handler::get_workshops))
         .route("/team", get(public_handler::get_team))
         .route("/sponsors", get(public_handler::get_sponsors))

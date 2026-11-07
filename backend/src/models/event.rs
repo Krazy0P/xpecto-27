@@ -13,19 +13,28 @@ pub struct Event {
     pub category: String,
     pub description: String,
     pub rules: String,
+    #[serde(alias = "image_url")]
     pub image_url: String,
+    #[serde(alias = "start_time")]
     pub start_time: Option<DateTime>,
+    #[serde(alias = "end_time")]
     pub end_time: Option<DateTime>,
     pub venue: String,
+    #[serde(alias = "prize_pool")]
     pub prize_pool: i64,
+    #[serde(alias = "prize_breakdown")]
     pub prize_breakdown: Vec<Prize>,
+    #[serde(alias = "registration_fee")]
     pub registration_fee: i64,
+    #[serde(alias = "team_size")]
     pub team_size: TeamSize,
+    #[serde(alias = "registration_open")]
     pub registration_open: bool,
+    #[serde(alias = "contact")]
     pub contact: Contact,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "created_at", serialize_with = "serialize_dt")]
     pub created_at: Option<DateTime>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "updated_at", serialize_with = "serialize_dt")]
     pub updated_at: Option<DateTime>,
 }
 

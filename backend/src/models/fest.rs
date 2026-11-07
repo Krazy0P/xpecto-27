@@ -13,9 +13,13 @@ pub struct FestInfo {
     pub start_date: Option<DateTime>,
     pub end_date: Option<DateTime>,
     pub venue: String,
+    #[serde(alias = "about_html")]
     pub about_html: String,
+    #[serde(alias = "hero_image_url")]
     pub hero_image_url: String,
+    #[serde(alias = "contact_email")]
     pub contact_email: String,
+    #[serde(alias = "contact_phone")]
     pub contact_phone: String,
 }
 

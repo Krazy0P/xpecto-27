@@ -10,11 +10,13 @@ pub struct Sponsor {
     pub id: Option<ObjectId>,
     pub name: String,
     pub tier: String,
+    #[serde(alias = "logo_url")]
     pub logo_url: String,
+    #[serde(alias = "website_url")]
     pub website_url: String,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "created_at", serialize_with = "serialize_dt")]
     pub created_at: Option<DateTime>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "updated_at", serialize_with = "serialize_dt")]
     pub updated_at: Option<DateTime>,
 }
 

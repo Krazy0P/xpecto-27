@@ -2,12 +2,12 @@ use axum::Router;
 
 use crate::middleware::AppState;
 
-mod admin;
-mod ambassador;
-mod auth;
-mod mess;
-mod public;
-mod registrations;
+pub(crate) mod admin;
+pub(crate) mod ambassador;
+pub(crate) mod auth;
+pub(crate) mod mess;
+pub(crate) mod public;
+pub(crate) mod registrations;
 
 pub fn routes(state: AppState) -> Router {
     Router::new()

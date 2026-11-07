@@ -11,13 +11,15 @@ pub struct TeamMember {
     pub name: String,
     pub role: String,
     pub department: String,
+    #[serde(alias = "photo_url")]
     pub photo_url: String,
     pub email: String,
+    #[serde(alias = "linkedin_url")]
     pub linkedin_url: String,
     pub order: i32,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "created_at", serialize_with = "serialize_dt")]
     pub created_at: Option<DateTime>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(alias = "updated_at", serialize_with = "serialize_dt")]
     pub updated_at: Option<DateTime>,
 }
 

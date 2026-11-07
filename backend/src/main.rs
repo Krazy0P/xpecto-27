@@ -42,14 +42,24 @@ async fn main() -> anyhow::Result<()> {
 
     let state = AppState { db };
 
-    // API router mounted at /api (already carries AppState).
-    let api = routes::routes(state.clone());
+    // API routes mounted under /api to match the frontend's baseURL prefix.
+    let api_public = Router::new()
+        .merge(routes::public::routes(state.clone()))
+        .merge(routes::registrations::routes(state.clone()))
+        .merge(routes::mess::routes(state.clone()))
+        .merge(routes::admin::routes(state.clone()))
+        .merge(routes::ambassador::routes(state.clone()));
+
+    // Auth routes mounted under /api/auth.
+    let api_auth = routes::auth::routes(state.clone());
 
     // Health endpoint (carries state so it merges cleanly).
     let health = Router::new().route("/health", get(health_handler)).with_state(state.clone());
 
     // Combine: API + health at root, static file serving for uploads.
-    let app = api
+    let app = Router::new()
+        .nest("/api", api_public)
+        .nest("/api/auth", api_auth)
         .merge(health)
         .nest_service("/uploads", tower_http::services::ServeDir::new(&config.upload_dir))
         .layer(

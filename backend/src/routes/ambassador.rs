@@ -15,7 +15,7 @@ pub fn routes(state: AppState) -> Router {
                     get(ambassador_handler::list_ambassadors),
                 )
                 .route(
-                    "/admin/campus-ambassadors/:id",
+                    "/admin/campus-ambassadors/{id}",
                     patch(ambassador_handler::decide_ambassador),
                 )
                 .with_state(state),
