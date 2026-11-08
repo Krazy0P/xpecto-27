@@ -77,7 +77,7 @@ export default function PaymentModal({ kind, target, onClose, onSuccess }) {
           <div className="pay-done">
             <p>Status: <StatusBadge status={done.status || 'pending'} /></p>
             <p>An admin will verify your payment. {kind === 'mess' && 'Your mess QR will be emailed once approved.'}</p>
-            <Link to="/me" className="btn-slash" onClick={onClose}>View my registrations</Link>
+            <Link to="/profile" className="btn-slash" onClick={onClose}>View my registrations</Link>
           </div>
         ) : (
           <>

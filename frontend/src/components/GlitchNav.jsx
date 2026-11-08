@@ -90,8 +90,9 @@ function GlitchNavLink({ to, label, onClick, end = false }) {
 export default function GlitchNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const { user, isAdmin, logout } = useAuth();
-  const links = [...NAV_LINKS, ...(user ? [{ path: '/me', label: 'My Registrations' }] : []), ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : []), ...(!user ? [{ path: '/auth', label: 'Login' }] : [])];
+  const { user, isAdmin } = useAuth();
+  // Top-right slot: "Login" when signed out, "My Profile" when signed in. Logout lives at the bottom of the profile page.
+  const links = [...NAV_LINKS, ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : []), user ? { path: '/profile', label: 'My Profile' } : { path: '/auth', label: 'Login' }];
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -128,7 +129,6 @@ export default function GlitchNav() {
               <GlitchNavLink to={path} label={label} end={path === '/'} />
             </li>
           ))}
-          {user && <li><button type="button" className="st-nav-link" onClick={logout}>Logout</button></li>}
         </ul>
 
         {/* Mobile: Hamburger toggle */}
@@ -161,7 +161,6 @@ export default function GlitchNav() {
             onClick={closeMobile}
           />
         ))}
-        {user && <button type="button" className="st-nav-link" onClick={() => { closeMobile(); logout(); }}>Logout</button>}
       </nav>
 
       {/* Mobile Backdrop Overlay */}
