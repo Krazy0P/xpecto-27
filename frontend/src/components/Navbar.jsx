@@ -34,7 +34,7 @@ export default function Navbar() {
             <button className="hud-btn" aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu(m => !m)}>{user.name}</button>
             {menu && (
               <div className="profile-menu" role="menu">
-                <Link to="/me" role="menuitem">My Registrations</Link>
+                <Link to="/profile" role="menuitem">My Profile</Link>
                 <button role="menuitem" onClick={logout}>Logout</button>
               </div>
             )}

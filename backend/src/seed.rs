@@ -19,20 +19,9 @@ impl Seed {
             Self::seed_events(db, seed_dir.join("events.json")).await?;
         }
 
-        let count = db.workshops.count_documents(doc! {}, None).await?;
-        if count == 0 {
-            Self::seed_workshops(db, seed_dir.join("workshops.json")).await?;
-        }
-
-        let count = db.team_members.count_documents(doc! {}, None).await?;
-        if count == 0 {
-            Self::seed_team(db, seed_dir.join("team.json")).await?;
-        }
-
-        let count = db.sponsors.count_documents(doc! {}, None).await?;
-        if count == 0 {
-            Self::seed_sponsors(db, seed_dir.join("sponsors.json")).await?;
-        }
+        // Sponsors, workshops and team members are intentionally NOT seeded.
+        // They live only in the database and are managed from the admin panel,
+        // so deleting them there (or in MongoDB) is permanent across restarts.
 
         let count = db.mess_options.count_documents(doc! {}, None).await?;
         if count == 0 {
@@ -139,72 +128,6 @@ impl Seed {
             db.events.insert_one(doc, None).await?;
         }
         info!("seeded {} events", arr.len());
-        Ok(())
-    }
-
-    async fn seed_workshops(db: &AppDatabase, path: PathBuf) -> anyhow::Result<()> {
-        let data = Self::read_json(path)?;
-        let arr = data.as_array().cloned().unwrap_or_default();
-        for item in arr.iter() {
-            let now = DateTime::now();
-            let doc = doc! {
-                "title": item.get("title").and_then(|v| v.as_str()).unwrap_or(""),
-                "description": item.get("description").and_then(|v| v.as_str()).unwrap_or(""),
-                "image_url": item.get("imageUrl").and_then(|v| v.as_str()).unwrap_or(""),
-                "speaker": item.get("speaker").and_then(|v| v.as_str()).unwrap_or(""),
-                "start_time": parse_iso(item.get("startTime").and_then(|v| v.as_str()).unwrap_or("")),
-                "end_time": parse_iso(item.get("endTime").and_then(|v| v.as_str()).unwrap_or("")),
-                "venue": item.get("venue").and_then(|v| v.as_str()).unwrap_or(""),
-                "fee": item.get("fee").and_then(|v| v.as_i64()).unwrap_or(0),
-                "seats_total": item.get("seatsTotal").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
-                "seats_left": item.get("seatsLeft").and_then(|v| v.as_i64()).unwrap_or(0) as i32,
-                "created_at": now,
-                "updated_at": now,
-            };
-            db.workshops.insert_one(doc, None).await?;
-        }
-        info!("seeded {} workshops", arr.len());
-        Ok(())
-    }
-
-    async fn seed_team(db: &AppDatabase, path: PathBuf) -> anyhow::Result<()> {
-        let data = Self::read_json(path)?;
-        let arr = data.as_array().cloned().unwrap_or_default();
-        for item in arr.iter() {
-            let now = DateTime::now();
-            let doc = doc! {
-                "name": item.get("name").and_then(|v| v.as_str()).unwrap_or(""),
-                "role": item.get("role").and_then(|v| v.as_str()).unwrap_or("Member"),
-                "department": item.get("department").and_then(|v| v.as_str()).unwrap_or(""),
-                "photo_url": item.get("photoUrl").and_then(|v| v.as_str()).unwrap_or(""),
-                "email": item.get("email").and_then(|v| v.as_str()).unwrap_or(""),
-                "linkedin_url": item.get("linkedinUrl").and_then(|v| v.as_str()).unwrap_or(""),
-                "order": item.get("order").and_then(|v| v.as_i64()).unwrap_or(9999) as i32,
-                "created_at": now,
-                "updated_at": now,
-            };
-            db.team_members.insert_one(doc, None).await?;
-        }
-        info!("seeded {} team members", arr.len());
-        Ok(())
-    }
-
-    async fn seed_sponsors(db: &AppDatabase, path: PathBuf) -> anyhow::Result<()> {
-        let data = Self::read_json(path)?;
-        let arr = data.as_array().cloned().unwrap_or_default();
-        for item in arr.iter() {
-            let now = DateTime::now();
-            let doc = doc! {
-                "name": item.get("name").and_then(|v| v.as_str()).unwrap_or(""),
-                "tier": item.get("tier").and_then(|v| v.as_str()).unwrap_or("Partner"),
-                "logo_url": item.get("logoUrl").and_then(|v| v.as_str()).unwrap_or(""),
-                "website_url": item.get("websiteUrl").and_then(|v| v.as_str()).unwrap_or(""),
-                "created_at": now,
-                "updated_at": now,
-            };
-            db.sponsors.insert_one(doc, None).await?;
-        }
-        info!("seeded {} sponsors", arr.len());
         Ok(())
     }
 

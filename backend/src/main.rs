@@ -107,10 +107,23 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api/auth", api_auth)
         .merge(health)
         .nest_service("/uploads", tower_http::services::ServeDir::new(&config.upload_dir))
+        // Reads the `xpecto_token` cookie and attaches the logged-in user to the request.
+        // Without this layer, `require_auth` / `require_admin` never see a user and every
+        // protected route answers 401 ("Session expired").
+        .layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            crate::middleware::auth::auth_middleware,
+        ))
         .layer(
             CorsLayer::new()
                 .allow_origin(config.cors_origin.parse::<http::header::HeaderValue>()?)
-                .allow_methods([http::Method::GET, http::Method::POST, http::Method::PUT, http::Method::DELETE])
+                .allow_methods([
+                    http::Method::GET,
+                    http::Method::POST,
+                    http::Method::PUT,
+                    http::Method::PATCH,
+                    http::Method::DELETE,
+                ])
                 .allow_headers([http::header::CONTENT_TYPE, http::header::COOKIE, http::header::SET_COOKIE])
                 .allow_credentials(true),
         );

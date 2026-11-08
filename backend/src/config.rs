@@ -17,6 +17,22 @@ pub struct Config {
     pub admin_name: Option<String>,
 }
 
+/// Parses "86400", "30s", "15m", "24h" or "7d" into seconds.
+/// (A value like "24h" used to be read as 24 *seconds*, which expired sessions almost immediately.)
+fn parse_duration_secs(raw: &str) -> Option<i64> {
+    let raw = raw.trim();
+    let digits: String = raw.chars().take_while(|c| c.is_ascii_digit()).collect();
+    let n: i64 = digits.parse().ok()?;
+    let mult = match raw[digits.len()..].trim().to_ascii_lowercase().as_str() {
+        "" | "s" => 1,
+        "m" => 60,
+        "h" => 60 * 60,
+        "d" => 24 * 60 * 60,
+        _ => return None,
+    };
+    Some(n * mult)
+}
+
 impl Config {
     pub fn from_env() -> Result<Self, crate::errors::AppError> {
         dotenvy::dotenv().map_err(|e| crate::errors::AppError::Internal(e.to_string())).ok();
@@ -31,7 +47,7 @@ impl Config {
             jwt_secret: env::var("JWT_SECRET").unwrap_or_else(|_| "change-me-in-production".into()),
             jwt_expires: env::var("JWT_EXPIRES")
                 .ok()
-                .and_then(|v| v.trim_end_matches(|c: char| !c.is_ascii_digit()).parse().ok())
+                .and_then(|v| parse_duration_secs(&v))
                 .unwrap_or(24 * 60 * 60),
             cors_origin: env::var("CORS_ORIGIN").unwrap_or_else(|_| "http://localhost:5173".into()),
             seed_on_start: env::var("SEED_ON_START")

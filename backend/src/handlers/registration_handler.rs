@@ -91,7 +91,7 @@ pub async fn my_registrations(
 ) -> Result<Json<serde_json::Value>, AppError> {
     let user_id = oid_from_hex(&current_user.id).map_err(|_| AppError::Validation("Invalid user id".into()))?;
     let svc = RegistrationService::new(state.db.clone());
-    let regs = svc.my_mess_registrations(&user_id).await?;
+    let regs = svc.my_registrations(&user_id).await?;
     Ok(Json(json!({ "registrations": regs })))
 }
 

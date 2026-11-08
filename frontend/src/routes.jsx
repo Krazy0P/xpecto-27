@@ -12,7 +12,7 @@ const Auth = lazy(() => import('./pages/Auth'));
 const Sponsors = lazy(() => import('./pages/Sponsors'));
 const Team = lazy(() => import('./pages/Team'));
 const CampusAmbassador = lazy(() => import('./pages/CampusAmbassador'));
-const MyRegistrations = lazy(() => import('./pages/MyRegistrations'));
+const Profile = lazy(() => import('./pages/Profile'));
 const Admin = lazy(() => import('./pages/admin/Admin'));
 
 export default function AppRoutes({ location }) {
@@ -27,7 +27,8 @@ export default function AppRoutes({ location }) {
       <Route path="/team" element={<Team />} />
       <Route path="/campus-ambassador" element={<CampusAmbassador />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path="/me" element={<ProtectedRoute><MyRegistrations /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/me" element={<Navigate to="/profile" replace />} />
       <Route path="/admin/*" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
