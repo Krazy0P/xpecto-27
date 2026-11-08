@@ -52,8 +52,8 @@ impl AuthService {
 
         let password_hash = hash_password(&input.password)?;
 
-        let is_admin = input.email == DEFAULT_ADMIN_EMAIL;
-        let role = if is_admin { "admin" } else { "user" };
+        // Public signups are ALWAYS regular users. Admins can ONLY be created through the backend.
+        let role = "user";
         let now = crate::database::now();
 
         let doc = doc! {
@@ -75,15 +75,6 @@ impl AuthService {
             .map_err(|e| AppError::Internal(e.to_string()))?;
 
         let id = result.inserted_id.as_object_id().unwrap_or_default();
-
-        // Ensure default admin email is registered in the admins collection.
-        if is_admin {
-            let _ = self
-                .db
-                .admins
-                .insert_one(doc! { "email": &input.email, "created_at": now }, None)
-                .await;
-        }
 
         let user = User {
             id: Some(id),
@@ -121,7 +112,25 @@ impl AuthService {
         }
 
         let id = doc.get_object_id("_id").unwrap_or_default();
-        let role = doc.get_str("role").unwrap_or("user").to_string();
+        let mut role = doc.get_str("role").unwrap_or("user").to_string();
+
+        // Also check db.admins to ensure anyone listed as admin gets the admin role.
+        if role != "admin" {
+            let admin_count = self
+                .db
+                .admins
+                .count_documents(doc! { "email": &input.email }, None)
+                .await
+                .unwrap_or(0);
+            if admin_count > 0 {
+                role = "admin".to_string();
+                let _ = self
+                    .db
+                    .users
+                    .update_one(doc! { "_id": id }, doc! { "$set": { "role": "admin" } }, None)
+                    .await;
+            }
+        }
 
         let user = User {
             id: Some(id),
@@ -136,8 +145,111 @@ impl AuthService {
         };
 
         let token = self.issue_token(&user)?;
-        info!("User logged in: {}", user.email);
+        info!("User logged in: {} (role={})", user.email, user.role);
         Ok((user.view(), token))
+    }
+
+    /// Provision or update an admin user directly from the backend.
+    /// This sets their role to "admin", hashes their password, and ensures they're in db.admins.
+    pub async fn create_or_update_admin(
+        &self,
+        email: &str,
+        password: &str,
+        name: &str,
+        phone: &str,
+        college: &str,
+    ) -> AppResult<UserView> {
+        let password_hash = hash_password(password)?;
+        let now = crate::database::now();
+        let existing = self
+            .db
+            .users
+            .find_one(doc! { "email": email }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+
+        let user = match existing {
+            Some(doc) => {
+                let id = doc.get_object_id("_id").unwrap_or_default();
+                self.db
+                    .users
+                    .update_one(
+                        doc! { "_id": id },
+                        doc! {
+                            "$set": {
+                                "password_hash": &password_hash,
+                                "role": "admin",
+                                "name": name,
+                                "phone": phone,
+                                "college": college,
+                                "updated_at": now,
+                            }
+                        },
+                        None,
+                    )
+                    .await
+                    .map_err(|e| AppError::Internal(e.to_string()))?;
+                User {
+                    id: Some(id),
+                    name: name.to_string(),
+                    email: email.to_string(),
+                    phone: phone.to_string(),
+                    college: college.to_string(),
+                    password_hash,
+                    role: "admin".to_string(),
+                    created_at: doc.get_datetime("created_at").ok().map(|d| *d),
+                    updated_at: Some(now),
+                }
+            }
+            None => {
+                let doc = doc! {
+                    "name": name,
+                    "email": email,
+                    "phone": phone,
+                    "college": college,
+                    "password_hash": &password_hash,
+                    "role": "admin",
+                    "created_at": now,
+                    "updated_at": now,
+                };
+                let result = self
+                    .db
+                    .users
+                    .insert_one(doc, None)
+                    .await
+                    .map_err(|e| AppError::Internal(e.to_string()))?;
+                let id = result.inserted_id.as_object_id().unwrap_or_default();
+                User {
+                    id: Some(id),
+                    name: name.to_string(),
+                    email: email.to_string(),
+                    phone: phone.to_string(),
+                    college: college.to_string(),
+                    password_hash,
+                    role: "admin".to_string(),
+                    created_at: Some(now),
+                    updated_at: Some(now),
+                }
+            }
+        };
+
+        // Ensure email exists in db.admins collection as well
+        let admin_exists = self
+            .db
+            .admins
+            .count_documents(doc! { "email": email }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+        if admin_exists == 0 {
+            self.db
+                .admins
+                .insert_one(doc! { "email": email, "created_at": now }, None)
+                .await
+                .map_err(|e| AppError::Internal(e.to_string()))?;
+        }
+
+        info!("Admin provisioned successfully: {} (role=admin)", email);
+        Ok(user.view())
     }
 
     pub fn build_user_view(id: &ObjectId, name: &str, email: &str, phone: &str, college: &str, role: &str) -> UserView {

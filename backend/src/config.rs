@@ -12,6 +12,9 @@ pub struct Config {
     pub cors_origin: String,
     pub seed_on_start: bool,
     pub upload_dir: String,
+    pub admin_email: Option<String>,
+    pub admin_password: Option<String>,
+    pub admin_name: Option<String>,
 }
 
 impl Config {
@@ -36,6 +39,9 @@ impl Config {
                 .and_then(|v| v.parse::<bool>().ok())
                 .unwrap_or(true),
             upload_dir: env::var("UPLOAD_DIR").unwrap_or_else(|_| "backend/uploads".into()),
+            admin_email: env::var("ADMIN_EMAIL").ok().filter(|s| !s.trim().is_empty()),
+            admin_password: env::var("ADMIN_PASSWORD").ok().filter(|s| !s.trim().is_empty()),
+            admin_name: env::var("ADMIN_NAME").ok().filter(|s| !s.trim().is_empty()),
         })
     }
 }

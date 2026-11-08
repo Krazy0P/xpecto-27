@@ -32,6 +32,51 @@ async fn main() -> anyhow::Result<()> {
     let config = Config::from_env().map_err(|e| anyhow::anyhow!(e.to_string()))?;
     let db = AppDatabase::connect(&config).await?;
 
+    // CLI Command Handler: Allows managing admin accounts directly from backend.
+    // Usage: cargo run -- create-admin <email> <password> [name] [phone] [college]
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() > 1 && (args[1] == "create-admin" || args[1] == "admin") {
+        if args.len() < 4 {
+            eprintln!("\n❌ Usage: cargo run -- create-admin <email> <password> [name] [phone] [college]\n");
+            std::process::exit(1);
+        }
+        let email = &args[2];
+        let password = &args[3];
+        let name = if args.len() > 4 { &args[4] } else { "Admin" };
+        let phone = if args.len() > 5 { &args[5] } else { "0000000000" };
+        let college = if args.len() > 6 { &args[6] } else { "IIT Mandi" };
+
+        let auth_service = crate::services::auth_service::AuthService::new(db.clone(), config.clone());
+        match auth_service.create_or_update_admin(email, password, name, phone, college).await {
+            Ok(view) => {
+                println!("\n========================================");
+                println!("✅ Admin Account Created / Updated Successfully!");
+                println!("========================================");
+                println!("Email:    {}", view.email);
+                println!("Name:     {}", view.name);
+                println!("Role:     {}", view.role);
+                println!("Login at: http://localhost:5173/auth");
+                println!("========================================\n");
+                return Ok(());
+            }
+            Err(e) => {
+                eprintln!("\n❌ Failed to create admin: {}\n", e);
+                std::process::exit(1);
+            }
+        }
+    }
+
+    // Ensure admin user from .env exists in database
+    if let (Some(admin_email), Some(admin_password)) = (&config.admin_email, &config.admin_password) {
+        let admin_name = config.admin_name.as_deref().unwrap_or("Super Admin");
+        let auth_service = crate::services::auth_service::AuthService::new(db.clone(), config.clone());
+        if let Err(e) = auth_service.create_or_update_admin(admin_email, admin_password, admin_name, "0000000000", "IIT Mandi").await {
+            tracing::warn!("Failed to ensure admin from .env: {}", e);
+        } else {
+            tracing::info!("Admin account ensured from .env for {}", admin_email);
+        }
+    }
+
     // Seed if enabled and collections are empty.
     if config.seed_on_start {
         let seed_dir = std::path::Path::new("seed-data");

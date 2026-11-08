@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import api, { USE_MOCK } from '../../api';
+import api from '../../api';
 import useAsync from '../../hooks/useAsync';
 import StatusBadge from '../../components/StatusBadge';
 import ErrorState from '../../components/ErrorState';
@@ -19,7 +19,6 @@ export default function RegTable({ mess = false }) {
   const set = k => e => setF({ ...f, [k]: e.target.value, ...(k === 'kind' ? { targetId: '' } : {}) });
   const opts = f.kind === 'event' ? targets.data?.events : f.kind === 'workshop' ? targets.data?.workshops : [];
 
-  // Client-side filter too, so mock mode behaves like the server
   const rows = (data || []).filter(r => (!f.status || r.status === f.status) && (mess ? !f.messOption || sameId(r.messOption, f.messOption) : (!f.kind || r.kind === f.kind) && (!f.targetId || sameId(r.targetId, f.targetId))));
 
   const decide = async (r, action) => {
@@ -28,12 +27,8 @@ export default function RegTable({ mess = false }) {
       toast.success(action === 'approve' ? 'Approved' : 'Rejected'); setRejecting(null); setReason(''); reload();
     } catch (x) { fail(x); }
   };
-  const exportCsv = () => {
-    if (!USE_MOCK) return window.open(api.admin.exportCsvUrl(), '_blank', 'noopener');
-    const head = ['id', 'user', 'email', 'kind', 'target', 'transactionId', 'amount', 'status'];
-    const csv = [head, ...rows.map(r => [r.id, r.user?.name, r.user?.email, r.kind || 'mess', r.targetName || r.messOption, r.transactionId, r.amount, r.status])].map(a => a.map(c => `"${String(c ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); const a = document.createElement('a'); a.href = url; a.download = 'registrations.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 0);
-  };
+
+  const exportCsv = () => window.open(api.admin.exportCsvUrl(), '_blank', 'noopener');
 
   return (
     <div>

@@ -218,7 +218,24 @@ impl RegistrationService {
         let mut cursor = self
             .db
             .registrations
-            .find(doc! { "user_id": user_id }, None)
+            .find(doc! { "user_id": user_id, "kind": { "$ne": "mess" } }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?;
+        let mut out = Vec::new();
+        while cursor.advance().await.map_err(|e| AppError::Internal(e.to_string()))? {
+            let doc = cursor.deserialize_current().map_err(|e| AppError::Internal(e.to_string()))?;
+            let reg: Registration = bson::from_bson(bson::Bson::Document(doc))
+                .map_err(|e| AppError::Internal(e.to_string()))?;
+            out.push(reg.view(None));
+        }
+        Ok(out)
+    }
+
+    pub async fn my_mess_registrations(&self, user_id: &ObjectId) -> AppResult<Vec<RegistrationView>> {
+        let mut cursor = self
+            .db
+            .registrations
+            .find(doc! { "user_id": user_id, "kind": "mess" }, None)
             .await
             .map_err(|e| AppError::Internal(e.to_string()))?;
         let mut out = Vec::new();
@@ -277,12 +294,17 @@ impl RegistrationService {
 
     pub async fn decide_registration(&self, id: &str, action: &str, reason: Option<&str>) -> AppResult<RegistrationView> {
         let oid = oid_from_hex(id).map_err(|_| AppError::NotFound("Invalid registration id.".into()))?;
+        let status = match action {
+            "approve" => "approved",
+            "reject"  => "rejected",
+            other     => return Err(AppError::Validation(format!("Invalid action: {}", other))),
+        };
         let now = now();
-        let mut set_doc = doc! { "status": action, "updated_at": now };
+        let mut set_doc = doc! { "status": status, "updated_at": now };
         if let Some(r) = reason {
             set_doc.insert("rejection_reason", r);
         }
-        if action == "approved" {
+        if status == "approved" {
             set_doc.insert("confirmation_qr_url", generate_qr_url(id));
         } else {
             set_doc.insert("confirmation_qr_url", None::<String>);
