@@ -1,12 +1,12 @@
 use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 
-use crate::models::{serialize_dt, serialize_oid};
+use crate::models::{deserialize_dt, serialize_dt, serialize_oid};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Event {
-    #[serde(alias = "_id", serialize_with = "serialize_oid")]
+    #[serde(rename(serialize = "id", deserialize = "_id"), serialize_with = "serialize_oid")]
     pub id: Option<ObjectId>,
     pub slug: String,
     pub name: String,
@@ -15,9 +15,9 @@ pub struct Event {
     pub rules: String,
     #[serde(alias = "image_url")]
     pub image_url: String,
-    #[serde(alias = "start_time")]
+    #[serde(default, alias = "start_time", deserialize_with = "deserialize_dt")]
     pub start_time: Option<DateTime>,
-    #[serde(alias = "end_time")]
+    #[serde(default, alias = "end_time", deserialize_with = "deserialize_dt")]
     pub end_time: Option<DateTime>,
     pub venue: String,
     #[serde(alias = "prize_pool")]
@@ -32,9 +32,19 @@ pub struct Event {
     pub registration_open: bool,
     #[serde(alias = "contact")]
     pub contact: Contact,
-    #[serde(alias = "created_at", serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "created_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub created_at: Option<DateTime>,
-    #[serde(alias = "updated_at", serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "updated_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub updated_at: Option<DateTime>,
 }
 

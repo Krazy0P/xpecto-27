@@ -70,10 +70,10 @@ const normPayment = p => { const o = toObject(p); return { ...o, qrImageUrl: str
 const STATUSES = ['pending', 'approved', 'rejected'];
 const normReg = r => {
   const o = toObject(r), target = toObject(o.target);
-  return { ...o, id: o.id, kind: o.kind === 'workshop' ? 'workshop' : 'event', targetId: o.targetId ?? target.id, targetName: str(o.targetName || target.name || target.title), transactionId: str(o.transactionId),
+  return { ...o, id: o.id, kind: ['workshop', 'accommodation'].includes(o.kind) ? o.kind : 'event', targetId: o.targetId ?? target.id, targetName: str(o.targetName || target.name || target.title), transactionId: str(o.transactionId),
     screenshotUrl: str(o.screenshotUrl), status: canonical(o.status, STATUSES, 'pending'), amount: num(o.amount), createdAt: iso(o.createdAt), teamName: str(o.teamName),
     participantName: str(o.participantName || o.user?.name), participantEmail: str(o.participantEmail || o.user?.email), participantPhone: str(o.participantPhone || o.user?.phone),
-    college: str(o.college || o.user?.college), visitDays: num(o.visitDays), competitions: Array.isArray(o.competitions) ? o.competitions.map(String) : [], competitionNames: Array.isArray(o.competitionNames) ? o.competitionNames.map(String) : [], user: o.user ? normUser(o.user) : null };
+    college: str(o.college || o.user?.college), visitDays: num(o.visitDays), competitions: Array.isArray(o.competitions) ? o.competitions.map(String) : [], competitionNames: Array.isArray(o.competitionNames) ? o.competitionNames.map(String) : [], paymentMethod: str(o.paymentMethod), rejectionReason: str(o.rejectionReason), user: o.user ? normUser(o.user) : null };
 };
 const normMessReg = r => {
   const o = toObject(r), opt = toObject(o.messOption);
@@ -113,6 +113,10 @@ const api = {
   createMessRegistration: form => http.post('/api/mess/registrations', form).then(v => normMessReg(unwrapReg(v))),
   myMessRegistrations:    ()   => http.get('/api/mess/registrations/me').then(mapList(normMessReg)),
 
+  getAccommodationInfo: () => http.get('/api/accommodation/info').then(v => ({ pricePerDay: num(v?.pricePerDay, 300), maxDays: Math.max(1, num(v?.maxDays, 7)) })),
+  createAccommodationRegistration: form => http.post('/api/accommodation/registrations', form).then(v => normReg(unwrapReg(v))),
+  myAccommodationRegistrations:    ()   => http.get('/api/accommodation/registrations/me').then(mapList(normReg)),
+
   applyCampusAmbassador: body => http.post('/api/campus-ambassadors', body).then(normAmbassador),
 
   admin: {
@@ -148,10 +152,12 @@ const api = {
 
     registrations:      params => http.get('/api/admin/registrations', { params }).then(mapList(normReg)),
     createRegistration: b      => http.post('/api/admin/registrations', b).then(v => normReg(unwrapReg(v))),
-    decide:    (id, action, reason) => http.post(`/api/admin/registrations/${id}/${action}`, action === 'reject' ? { reason } : undefined),
+    decide:    (id, action, reason) => http.post(`/api/admin/registrations/${id}/${action}`, action === 'reject' ? { reason } : {}),
 
     messRegistrations: params => http.get('/api/admin/mess/registrations', { params }).then(mapList(normMessReg)),
-    decideMess: (id, action, reason) => http.post(`/api/admin/mess/registrations/${id}/${action}`, action === 'reject' ? { reason } : undefined),
+    decideMess: (id, action, reason) => http.post(`/api/admin/mess/registrations/${id}/${action}`, action === 'reject' ? { reason } : {}),
+
+    verifyRegistration: id => http.get(`/api/admin/registrations/${encodeURIComponent(id.trim().replace(/^#/, ''))}/verify`),
 
     admins:      ()      => http.get('/api/admin/admins').then(normAdmins),
     addAdmin:    email   => http.post('/api/admin/admins', { email }),

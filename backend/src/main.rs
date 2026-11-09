@@ -92,6 +92,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(routes::public::routes(state.clone()))
         .merge(routes::registrations::routes(state.clone()))
         .merge(routes::mess::routes(state.clone()))
+        .merge(routes::accommodation::routes(state.clone()))
         .merge(routes::admin::routes(state.clone()))
         .merge(routes::ambassador::routes(state.clone()));
 

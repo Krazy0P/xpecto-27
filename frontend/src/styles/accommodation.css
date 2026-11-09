@@ -1,0 +1,25 @@
+/* Accommodation page + booking modal */
+.stay-hero { max-width: 760px; margin: 0 auto 1.5rem; text-align: center; }
+.stay-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.stay-fact { padding: 1rem; border: 1px solid rgba(25,230,255,.3); background: rgba(10,8,26,.6); text-align: center; }
+.stay-fact b { display: block; font: 800 1.4rem 'Orbitron'; color: var(--fire); }
+.stay-fact span { color: #9a96b5; font-size: .9rem; }
+.stay-cta { text-align: center; margin: 1.5rem 0; }
+
+.stay-modal { width: min(560px, 100%); }
+.stay-days { display: flex; flex-wrap: wrap; gap: .5rem; }
+.stay-days .chip { margin: 0; }
+.stay-events { max-height: 240px; overflow-y: auto; border: 1px solid rgba(25,230,255,.3); padding: .4rem .6rem; background: #0b0916; }
+.stay-events label { display: flex; gap: .6rem; align-items: flex-start; padding: .35rem 0; cursor: pointer; font-weight: 400; color: var(--text); }
+.stay-events input { margin-top: .3rem; accent-color: var(--fire); }
+.stay-events small { display: block; color: #9a96b5; }
+.stay-total { display: flex; justify-content: space-between; align-items: center; margin-top: .8rem; padding: .6rem .8rem; border-left: 4px solid var(--fire); background: rgba(255,214,10,.08); }
+
+.pay-tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; justify-content: center; }
+.pay-tabs .chip { margin: 0; }
+.bank-list { display: grid; grid-template-columns: auto 1fr auto; gap: .45rem .8rem; align-items: center; text-align: left; margin: 0 0 1rem; }
+.bank-list dt { color: var(--volt); }
+.bank-list dd { margin: 0; word-break: break-all; font-weight: 700; }
+.pay-note { text-align: left; font-size: .9rem; }
+.stay-qr { width: 200px; height: 200px; }
+.stay-reg .reg-row { align-items: flex-start; }

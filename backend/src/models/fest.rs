@@ -1,16 +1,28 @@
 use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 
-use crate::models::{serialize_dt, serialize_oid};
+use crate::models::{deserialize_dt, serialize_dt, serialize_oid};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FestInfo {
-    #[serde(alias = "_id", serialize_with = "serialize_oid")]
+    #[serde(rename(serialize = "id", deserialize = "_id"), serialize_with = "serialize_oid")]
     pub id: Option<ObjectId>,
     pub name: String,
     pub tagline: String,
+    #[serde(
+        default,
+        alias = "start_date",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub start_date: Option<DateTime>,
+    #[serde(
+        default,
+        alias = "end_date",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub end_date: Option<DateTime>,
     pub venue: String,
     #[serde(alias = "about_html")]

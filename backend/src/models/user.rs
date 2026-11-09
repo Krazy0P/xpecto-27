@@ -2,22 +2,33 @@ use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::models::{serialize_oid, serialize_dt};
+use crate::models::{deserialize_dt, serialize_dt, serialize_oid};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    #[serde(alias = "_id", serialize_with = "serialize_oid")]
+    #[serde(rename(serialize = "id", deserialize = "_id"), serialize_with = "serialize_oid")]
     pub id: Option<ObjectId>,
     pub name: String,
     pub email: String,
     pub phone: String,
     pub college: String,
+    #[serde(alias = "password_hash")]
     pub password_hash: String,
     pub role: String,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "created_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub created_at: Option<DateTime>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "updated_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub updated_at: Option<DateTime>,
 }
 

@@ -34,20 +34,16 @@ pub fn routes(state: AppState) -> Router {
         .route("/admin/mess-options/{id}", put(admin_handler::admin_mess_option_update))
         .route("/admin/registrations", get(admin_handler::admin_registrations))
         .route(
-            "/admin/registrations/{id}/approve",
+            "/admin/registrations/{id}/{action}",
             post(admin_handler::admin_decide_registration),
         )
         .route(
-            "/admin/registrations/{id}/reject",
-            post(admin_handler::admin_decide_registration),
+            "/admin/registrations/{id}/verify",
+            get(admin_handler::admin_verify_registration),
         )
         .route("/admin/mess/registrations", get(admin_handler::admin_registrations))
         .route(
-            "/admin/mess/registrations/{id}/approve",
-            post(admin_handler::admin_decide_registration),
-        )
-        .route(
-            "/admin/mess/registrations/{id}/reject",
+            "/admin/mess/registrations/{id}/{action}",
             post(admin_handler::admin_decide_registration),
         )
         .route(

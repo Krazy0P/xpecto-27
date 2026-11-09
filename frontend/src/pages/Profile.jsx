@@ -70,7 +70,7 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [leaving, setLeaving] = useState(false);
-  const { data, error, reload } = useAsync(() => Promise.all([api.myRegistrations(), api.myMessRegistrations()]), []);
+  const { data, error, reload } = useAsync(() => Promise.all([api.myRegistrations(), api.myMessRegistrations(), api.myAccommodationRegistrations()]), []);
 
   const signOut = async () => {
     setLeaving(true);
@@ -79,10 +79,11 @@ export default function Profile() {
     catch { toast.error('Could not reach the server to end your session. Please try again.'); }
   };
 
-  const regs = data ? data[0] : [], mess = data ? data[1] : [];
+  const regs = data ? data[0] : [], mess = data ? data[1] : [], stay = data ? data[2] : [];
   const events = regs.filter(r => r.kind === 'event'), workshops = regs.filter(r => r.kind === 'workshop');
   const payments = [
     ...regs.map(r => ({ id: r.id, name: r.targetName, createdAt: r.createdAt, amount: r.amount, transactionId: r.transactionId, status: r.status })),
+    ...stay.map(r => ({ id: r.id, name: r.targetName || 'Accommodation', createdAt: r.createdAt, amount: r.amount, transactionId: r.transactionId, status: r.status })),
     ...mess.map(r => ({ id: r.id, name: r.messName || `${capitalize(r.messOption)} Mess`, createdAt: r.createdAt, amount: r.amount, transactionId: r.transactionId, status: r.status })),
   ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -101,9 +102,10 @@ export default function Profile() {
         <div aria-busy="true"><div className="skeleton" style={{ height: 90, marginTop: 24 }} /><div className="skeleton" style={{ height: 90, marginTop: 12 }} /></div>
       ) : (
         <>
-          {regs.length + mess.length === 0 && <div className="empty-note"><p>You haven't registered for anything yet.</p><Link to="/events" className="btn-slash">Browse events</Link></div>}
+          {regs.length + mess.length + stay.length === 0 && <div className="empty-note"><p>You haven't registered for anything yet.</p><Link to="/events" className="btn-slash">Browse events</Link></div>}
           <RegGroup title="Events" items={events} />
           <RegGroup title="Workshops" items={workshops} />
+          <RegGroup title="Accommodation" items={stay} />
           {mess.length > 0 && <><h2 className="sec-title">Mess</h2><MessList items={mess} /></>}
           <Payments rows={payments} />
         </>
