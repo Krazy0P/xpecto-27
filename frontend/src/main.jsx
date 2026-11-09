@@ -10,6 +10,7 @@ import './styles/animations.css';
 import './styles/redesign.css';
 import './styles/neura.css';
 import './styles/spacetime.css';
+import './styles/accommodation.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

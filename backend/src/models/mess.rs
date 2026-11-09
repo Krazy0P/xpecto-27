@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MessOption {
-    #[serde(alias = "_id")]
+    #[serde(rename(serialize = "id", deserialize = "_id"))]
     pub id: Option<String>,
     pub name: String,
     #[serde(alias = "description")]

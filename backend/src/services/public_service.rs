@@ -169,7 +169,7 @@ impl PublicService {
             return Err(AppError::Validation("Event slug already exists.".into()));
         }
         let now = crate::database::now();
-        let doc = bson::to_document(&Event {
+        let mut doc = bson::to_document(&Event {
             id: None,
             slug,
             name: input.name,
@@ -195,6 +195,17 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
+        rename_timestamp_fields(
+            &mut doc,
+            &[
+                ("createdAt", "created_at"),
+                ("updatedAt", "updated_at"),
+                ("startTime", "start_time"),
+                ("endTime", "end_time"),
+            ],
+        );
+        doc.insert("created_at", now);
+        doc.insert("updated_at", now);
         let result = self
             .db
             .events
@@ -282,7 +293,7 @@ impl PublicService {
 
     pub async fn create_workshop(&self, input: WorkshopInput) -> AppResult<Workshop> {
         let now = crate::database::now();
-        let doc = bson::to_document(&Workshop {
+        let mut doc = bson::to_document(&Workshop {
             id: None,
             title: input.title,
             description: input.description,
@@ -298,6 +309,17 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
+        rename_timestamp_fields(
+            &mut doc,
+            &[
+                ("createdAt", "created_at"),
+                ("updatedAt", "updated_at"),
+                ("startTime", "start_time"),
+                ("endTime", "end_time"),
+            ],
+        );
+        doc.insert("created_at", now);
+        doc.insert("updated_at", now);
         let result = self
             .db
             .workshops
@@ -365,7 +387,7 @@ impl PublicService {
 
     pub async fn create_team_member(&self, input: crate::models::team::TeamMemberInput) -> AppResult<TeamMember> {
         let now = crate::database::now();
-        let doc = bson::to_document(&crate::models::team::TeamMember {
+        let mut doc = bson::to_document(&crate::models::team::TeamMember {
             id: None,
             name: input.name,
             role: input.role,
@@ -378,6 +400,12 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
+        rename_timestamp_fields(
+            &mut doc,
+            &[("createdAt", "created_at"), ("updatedAt", "updated_at")],
+        );
+        doc.insert("created_at", now);
+        doc.insert("updated_at", now);
         let result = self
             .db
             .team_members
@@ -438,7 +466,7 @@ impl PublicService {
 
     pub async fn create_sponsor(&self, input: crate::models::sponsor::SponsorInput) -> AppResult<Sponsor> {
         let now = crate::database::now();
-        let doc = bson::to_document(&crate::models::sponsor::Sponsor {
+        let mut doc = bson::to_document(&crate::models::sponsor::Sponsor {
             id: None,
             name: input.name,
             tier: input.tier,
@@ -448,6 +476,12 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
+        rename_timestamp_fields(
+            &mut doc,
+            &[("createdAt", "created_at"), ("updatedAt", "updated_at")],
+        );
+        doc.insert("created_at", now);
+        doc.insert("updated_at", now);
         let result = self
             .db
             .sponsors
@@ -684,6 +718,14 @@ fn slugify(s: &str) -> String {
         .join("-")
 }
 
+fn rename_timestamp_fields(doc: &mut Document, fields: &[(&str, &str)]) {
+    for (camel_case, snake_case) in fields {
+        if let Some(value) = doc.remove(*camel_case) {
+            doc.insert(*snake_case, value);
+        }
+    }
+}
+
 fn parse_iso(s: Option<&str>) -> Option<bson::DateTime> {
     let s = s?;
     let dt = chrono::DateTime::parse_from_rfc3339(s)
@@ -694,4 +736,46 @@ fn parse_iso(s: Option<&str>) -> Option<bson::DateTime> {
         })
         .ok()?;
     Some(bson::DateTime::from_millis(dt.timestamp_millis()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::rename_timestamp_fields;
+    use crate::models::sponsor::Sponsor;
+    use bson::{doc, DateTime};
+
+    #[test]
+    fn model_timestamps_do_not_duplicate_snake_case_aliases() {
+        let timestamp = DateTime::from_millis(1_700_000_000_000);
+        let mut document = bson::to_document(&Sponsor {
+            id: None,
+            name: "Sponsor".into(),
+            tier: "Partner".into(),
+            logo_url: String::new(),
+            website_url: String::new(),
+            created_at: Some(timestamp),
+            updated_at: Some(timestamp),
+        })
+        .unwrap();
+
+        rename_timestamp_fields(
+            &mut document,
+            &[("createdAt", "created_at"), ("updatedAt", "updated_at")],
+        );
+        document.insert("created_at", timestamp);
+        document.insert("updated_at", timestamp);
+
+        assert!(!document.contains_key("createdAt"));
+        assert!(!document.contains_key("updatedAt"));
+        assert_eq!(
+            bson::from_document::<Sponsor>(document).unwrap().created_at,
+            Some(timestamp)
+        );
+
+        let legacy_duplicate = doc! {
+            "createdAt": timestamp.to_rfc3339_string(),
+            "created_at": timestamp,
+        };
+        assert!(bson::from_document::<Sponsor>(legacy_duplicate).is_err());
+    }
 }

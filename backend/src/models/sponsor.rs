@@ -1,12 +1,12 @@
 use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 
-use crate::models::{serialize_dt, serialize_oid};
+use crate::models::{deserialize_dt, serialize_dt, serialize_oid};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Sponsor {
-    #[serde(alias = "_id", serialize_with = "serialize_oid")]
+    #[serde(rename(serialize = "id", deserialize = "_id"), serialize_with = "serialize_oid")]
     pub id: Option<ObjectId>,
     pub name: String,
     pub tier: String,
@@ -14,9 +14,19 @@ pub struct Sponsor {
     pub logo_url: String,
     #[serde(alias = "website_url")]
     pub website_url: String,
-    #[serde(alias = "created_at", serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "created_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub created_at: Option<DateTime>,
-    #[serde(alias = "updated_at", serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "updated_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub updated_at: Option<DateTime>,
 }
 

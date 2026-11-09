@@ -277,6 +277,7 @@ pub async fn admin_create_registration(
         amount,
         team_name,
         team_members,
+        "",
     ).await?;
 
     Ok(Json(json!({ "registration": reg })))
@@ -286,17 +287,41 @@ pub async fn admin_decide_registration(
     State(state): State<AppState>,
     Extension(_current_user): Extension<CurrentUser>,
     Path((id, action)): Path<(String, String)>,
-    axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
+    body: Option<axum::extract::Json<serde_json::Value>>,
 ) -> Result<impl IntoResponse, crate::errors::AppError> {
     require(&_current_user)?;
     if action != "approve" && action != "reject" {
         return Err(crate::errors::AppError::NotFound("Invalid action".into()));
     }
-    let reason = body.get("reason").and_then(|v| v.as_str()).map(|s| s.to_string());
+    let reason = body
+        .and_then(|axum::extract::Json(body)| {
+            body.get("reason")
+                .and_then(|v| v.as_str())
+                .map(str::to_string)
+        });
     let svc = RegistrationService::new(state.db.clone());
     let reg = svc.decide_registration(&id, &action, reason.as_deref()).await?;
+    // Email the participant (approval with details, or rejection with the reason).
+    // Runs in the background so a slow/failed mail server never blocks or fails the admin action.
+    let reg_for_mail = reg.clone();
+    tokio::spawn(async move {
+        crate::services::mailer_service::send_decision_email(&reg_for_mail).await;
+    });
     let value = serde_json::json!({ "registration": reg });
     Ok(Json(value))
+}
+
+/// Desk verification: GET /admin/registrations/{id}/verify
+/// Admin-only. Returns the live registration; `valid` is true only when it is approved.
+pub async fn admin_verify_registration(
+    State(state): State<AppState>,
+    Extension(current_user): Extension<CurrentUser>,
+    Path(id): Path<String>,
+) -> Result<impl IntoResponse, crate::errors::AppError> {
+    require(&current_user)?;
+    let svc = RegistrationService::new(state.db.clone());
+    let reg = svc.verify_registration(&id).await?;
+    Ok(Json(json!({ "valid": reg.status == "approved", "registration": reg })))
 }
 
 pub async fn admin_export_csv(

@@ -1,30 +1,61 @@
 use bson::{oid::ObjectId, DateTime};
 use serde::{Deserialize, Serialize};
 
-use crate::models::{serialize_dt, serialize_oid};
+use crate::models::{deserialize_dt, serialize_dt, serialize_oid};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Registration {
-    #[serde(alias = "_id", serialize_with = "serialize_oid")]
+    #[serde(default, rename(serialize = "id", deserialize = "_id"), serialize_with = "serialize_oid")]
     pub id: Option<ObjectId>,
+    #[serde(default)]
     pub kind: String,
+    // The database stores snake_case keys; accept those as well as camelCase.
+    #[serde(alias = "user_id")]
     pub user_id: ObjectId,
+    #[serde(default, alias = "target_id")]
     pub target_id: Option<ObjectId>,
+    #[serde(default, alias = "target_name")]
     pub target_name: String,
+    #[serde(default, alias = "mess_option")]
     pub mess_option: Option<ObjectId>,
+    #[serde(default, alias = "mess_name")]
     pub mess_name: String,
+    #[serde(default, alias = "transaction_id")]
     pub transaction_id: String,
+    #[serde(default, alias = "screenshot_url")]
     pub screenshot_url: String,
+    #[serde(default)]
     pub status: String,
+    #[serde(default)]
     pub amount: i64,
+    #[serde(default, alias = "team_name")]
     pub team_name: Option<String>,
+    #[serde(default, alias = "team_members")]
     pub team_members: Vec<TeamMemberReg>,
+    #[serde(default, alias = "rejection_reason")]
     pub rejection_reason: Option<String>,
+    #[serde(default, alias = "confirmation_qr_url")]
     pub confirmation_qr_url: Option<String>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(default, alias = "visit_days")]
+    pub visit_days: i64,
+    #[serde(default, alias = "competition_names")]
+    pub competition_names: Vec<String>,
+    #[serde(default, alias = "payment_method")]
+    pub payment_method: String,
+    #[serde(
+        default,
+        alias = "created_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub created_at: Option<DateTime>,
-    #[serde(serialize_with = "serialize_dt")]
+    #[serde(
+        default,
+        alias = "updated_at",
+        deserialize_with = "deserialize_dt",
+        serialize_with = "serialize_dt"
+    )]
     pub updated_at: Option<DateTime>,
 }
 
@@ -52,6 +83,9 @@ pub struct RegistrationView {
     pub created_at: String,
     pub rejection_reason: Option<String>,
     pub confirmation_qr_url: Option<String>,
+    pub visit_days: i64,
+    pub competition_names: Vec<String>,
+    pub payment_method: String,
     pub user: Option<UserRegView>,
 }
 
@@ -85,6 +119,9 @@ impl Registration {
                 .unwrap_or_default(),
             rejection_reason: self.rejection_reason.clone(),
             confirmation_qr_url: self.confirmation_qr_url.clone(),
+            visit_days: self.visit_days,
+            competition_names: self.competition_names.clone(),
+            payment_method: self.payment_method.clone(),
             user: user.map(|u| UserRegView {
                 id: u.id.as_ref().map(|o| o.to_hex()).unwrap_or_default(),
                 name: u.name.clone(),

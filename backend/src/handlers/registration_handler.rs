@@ -8,25 +8,27 @@ use crate::services::registration_service::RegistrationService;
 use crate::database::oid_from_hex;
 use crate::errors::{AppError, AppResult};
 
-async fn extract_text_field(mp: &mut Multipart, name: &str) -> AppResult<Option<String>> {
+/// Read every multipart part once, in any order (text fields + the `screenshot` file).
+async fn read_parts(mp: &mut Multipart) -> AppResult<(std::collections::HashMap<String, String>, Option<(String, String, Vec<u8>)>)> {
+    let mut texts = std::collections::HashMap::new();
+    let mut file = None;
     while let Some(field) = mp.next_field().await.map_err(|e| AppError::Internal(e.to_string()))? {
-        if field.name() == Some(name) {
-            return Ok(Some(field.text().await.map_err(|e| AppError::Internal(e.to_string()))?));
-        }
-    }
-    Ok(None)
-}
-
-async fn extract_file_field(mp: &mut Multipart, name: &str) -> AppResult<Option<(String, String, Vec<u8>)>> {
-    while let Some(field) = mp.next_field().await.map_err(|e| AppError::Internal(e.to_string()))? {
-        if field.name() == Some(name) {
+        let name = field.name().unwrap_or("").to_string();
+        if name == "screenshot" {
             let content_type = field.content_type().unwrap_or("application/octet-stream").to_string();
             let file_name = field.file_name().unwrap_or("upload").to_string();
             let bytes = field.bytes().await.map_err(|e| AppError::Internal(e.to_string()))?.to_vec();
-            return Ok(Some((file_name, content_type, bytes)));
+            file = Some((file_name, content_type, bytes));
+        } else {
+            texts.insert(name, field.text().await.map_err(|e| AppError::Internal(e.to_string()))?);
         }
     }
-    Ok(None)
+    Ok((texts, file))
+}
+
+/// Optional `paymentMethod` (defaults to UPI); the services reject unknown values.
+fn payment_method_of(texts: &std::collections::HashMap<String, String>) -> String {
+    texts.get("paymentMethod").map(|v| v.trim().to_lowercase()).filter(|v| !v.is_empty()).unwrap_or_else(|| "upi".to_string())
 }
 
 pub async fn create_registration(
@@ -36,16 +38,19 @@ pub async fn create_registration(
 ) -> Result<Json<serde_json::Value>, AppError> {
     let upload_service = crate::services::upload_service::UploadService::new(&crate::config::Config::from_env()?);
 
-    let kind = extract_text_field(&mut mp, "kind").await?.ok_or_else(|| AppError::Validation("kind is required".into()))?;
-    let target_id_s = extract_text_field(&mut mp, "targetId").await?.ok_or_else(|| AppError::Validation("targetId is required".into()))?;
-    let transaction_id = extract_text_field(&mut mp, "transactionId").await?.ok_or_else(|| AppError::Validation("transactionId is required".into()))?;
-    let team_name = extract_text_field(&mut mp, "teamName").await?.unwrap_or_default();
-    let team_members_s = extract_text_field(&mut mp, "teamMembers").await?.unwrap_or_default();
+    let (texts, file) = read_parts(&mut mp).await?;
+    let req = |k: &str| texts.get(k).map(|v| v.trim().to_string()).filter(|v| !v.is_empty()).ok_or_else(|| AppError::Validation(format!("{} is required", k)));
+    let kind = req("kind")?;
+    let target_id_s = req("targetId")?;
+    let transaction_id = req("transactionId")?;
+    let team_name = texts.get("teamName").cloned().unwrap_or_default();
+    let team_members_s = texts.get("teamMembers").cloned().unwrap_or_default();
+    let payment_method = payment_method_of(&texts);
 
     let target_id = oid_from_hex(&target_id_s).map_err(|_| AppError::Validation("Invalid targetId".into()))?;
     let user_id = oid_from_hex(&current_user.id).map_err(|_| AppError::Validation("Invalid user id".into()))?;
 
-    let (screenshot_url, amount) = match extract_file_field(&mut mp, "screenshot").await? {
+    let (screenshot_url, amount) = match file {
         Some((file_name, content_type, bytes)) => {
             let url = upload_service.save_uploaded_file(&bytes, &content_type, &file_name).await?;
             (url, 0)
@@ -79,7 +84,7 @@ pub async fn create_registration(
     };
 
     let reg = svc.create_event_registration(
-        &user_id, &kind, &target_id, &target_name, &transaction_id, &screenshot_url, amount, Some(team_name), team_members,
+        &user_id, &kind, &target_id, &target_name, &transaction_id, &screenshot_url, amount, Some(team_name), team_members, &payment_method,
     ).await?;
 
     Ok(Json(json!({ "registration": reg })))
@@ -102,13 +107,16 @@ pub async fn create_mess_registration(
 ) -> Result<Json<serde_json::Value>, AppError> {
     let upload_service = crate::services::upload_service::UploadService::new(&crate::config::Config::from_env()?);
 
-    let mess_option_s = extract_text_field(&mut mp, "messOption").await?.ok_or_else(|| AppError::Validation("messOption is required".into()))?;
-    let transaction_id = extract_text_field(&mut mp, "transactionId").await?.ok_or_else(|| AppError::Validation("transactionId is required".into()))?;
+    let (texts, file) = read_parts(&mut mp).await?;
+    let req = |k: &str| texts.get(k).map(|v| v.trim().to_string()).filter(|v| !v.is_empty()).ok_or_else(|| AppError::Validation(format!("{} is required", k)));
+    let mess_option_s = req("messOption")?;
+    let transaction_id = req("transactionId")?;
+    let payment_method = payment_method_of(&texts);
 
     let mess_option = oid_from_hex(&mess_option_s).map_err(|_| AppError::Validation("Invalid messOption".into()))?;
     let user_id = oid_from_hex(&current_user.id).map_err(|_| AppError::Validation("Invalid user id".into()))?;
 
-    let (screenshot_url, amount) = match extract_file_field(&mut mp, "screenshot").await? {
+    let (screenshot_url, amount) = match file {
         Some((file_name, content_type, bytes)) => {
             let url = upload_service.save_uploaded_file(&bytes, &content_type, &file_name).await?;
             // Determine amount from mess option.
@@ -125,7 +133,7 @@ pub async fn create_mess_registration(
         .map(|d| d.get_str("name").unwrap_or("").to_string()).unwrap_or_default();
 
     let svc = RegistrationService::new(db.clone());
-    let reg = svc.create_mess_registration(&user_id, &mess_option, &mess_name, &transaction_id, &screenshot_url, amount).await?;
+    let reg = svc.create_mess_registration(&user_id, &mess_option, &mess_name, &transaction_id, &screenshot_url, amount, &payment_method).await?;
 
     Ok(Json(json!({ "registration": reg })))
 }
@@ -137,5 +145,81 @@ pub async fn my_mess_registrations(
     let user_id = oid_from_hex(&current_user.id).map_err(|_| AppError::Validation("Invalid user id".into()))?;
     let svc = RegistrationService::new(state.db.clone());
     let regs = svc.my_mess_registrations(&user_id).await?;
+    Ok(Json(json!({ "registrations": regs })))
+}
+
+/// Public: pricing for accommodation so the form can show the amount.
+pub async fn accommodation_info() -> Json<serde_json::Value> {
+    Json(json!({
+        "pricePerDay": RegistrationService::accommodation_price_per_day(),
+        "maxDays": RegistrationService::ACCOMMODATION_MAX_DAYS,
+    }))
+}
+
+pub async fn create_accommodation_registration(
+    State(state): State<AppState>,
+    Extension(current_user): Extension<CurrentUser>,
+    mut mp: Multipart,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let upload_service = crate::services::upload_service::UploadService::new(&crate::config::Config::from_env()?);
+
+    // Read every part once, in any order.
+    let mut texts: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    let mut file: Option<(String, String, Vec<u8>)> = None;
+    while let Some(field) = mp.next_field().await.map_err(|e| AppError::Internal(e.to_string()))? {
+        let name = field.name().unwrap_or("").to_string();
+        if name == "screenshot" {
+            let content_type = field.content_type().unwrap_or("application/octet-stream").to_string();
+            let file_name = field.file_name().unwrap_or("upload").to_string();
+            let bytes = field.bytes().await.map_err(|e| AppError::Internal(e.to_string()))?.to_vec();
+            file = Some((file_name, content_type, bytes));
+        } else {
+            let text = field.text().await.map_err(|e| AppError::Internal(e.to_string()))?;
+            texts.insert(name, text);
+        }
+    }
+
+    let visit_days: i64 = texts
+        .get("visitDays")
+        .and_then(|v| v.trim().parse().ok())
+        .ok_or_else(|| AppError::Validation("visitDays is required".into()))?;
+    let payment_method = texts
+        .get("paymentMethod")
+        .map(|v| v.trim().to_lowercase())
+        .ok_or_else(|| AppError::Validation("paymentMethod is required".into()))?;
+    let transaction_id = texts
+        .get("transactionId")
+        .map(|v| v.trim().to_string())
+        .filter(|v| !v.is_empty())
+        .ok_or_else(|| AppError::Validation("transactionId is required".into()))?;
+    let competitions: Vec<String> = texts
+        .get("competitions")
+        .and_then(|v| serde_json::from_str::<Vec<String>>(v).ok())
+        .unwrap_or_default()
+        .into_iter()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .take(50)
+        .collect();
+
+    let user_id = oid_from_hex(&current_user.id).map_err(|_| AppError::Validation("Invalid user id".into()))?;
+
+    let (file_name, content_type, bytes) = file.ok_or_else(|| AppError::Validation("screenshot is required".into()))?;
+    let screenshot_url = upload_service.save_uploaded_file(&bytes, &content_type, &file_name).await?;
+
+    let svc = RegistrationService::new(state.db.clone());
+    let reg = svc
+        .create_accommodation_registration(&user_id, visit_days, competitions, &payment_method, &transaction_id, &screenshot_url)
+        .await?;
+    Ok(Json(json!({ "registration": reg })))
+}
+
+pub async fn my_accommodation_registrations(
+    State(state): State<AppState>,
+    Extension(current_user): Extension<CurrentUser>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let user_id = oid_from_hex(&current_user.id).map_err(|_| AppError::Validation("Invalid user id".into()))?;
+    let svc = RegistrationService::new(state.db.clone());
+    let regs = svc.my_accommodation_registrations(&user_id).await?;
     Ok(Json(json!({ "registrations": regs })))
 }

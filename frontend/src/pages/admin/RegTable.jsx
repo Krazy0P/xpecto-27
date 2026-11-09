@@ -7,6 +7,8 @@ import ErrorState from '../../components/ErrorState';
 import { useAdminError } from './util';
 import { fmtDate, sameId } from '../../utils';
 
+const KINDS = [['', 'All'], ['event', 'Events'], ['workshop', 'Workshops'], ['accommodation', 'Accommodation']];
+
 /** Registrations review table. mess=true switches to the mess endpoints. */
 export default function RegTable({ mess = false }) {
   const [f, setF] = useState({ kind: '', status: '', targetId: '', messOption: '' });
@@ -17,6 +19,7 @@ export default function RegTable({ mess = false }) {
   const params = Object.fromEntries(Object.entries(f).filter(([, v]) => v));
   const { data, error, reload } = useAsync(() => mess ? api.admin.messRegistrations(params) : api.admin.registrations(params), [JSON.stringify(f)]);
   const set = k => e => setF({ ...f, [k]: e.target.value, ...(k === 'kind' ? { targetId: '' } : {}) });
+  const setKind = kind => setF({ ...f, kind, targetId: '' });
   const opts = f.kind === 'event' ? targets.data?.events : f.kind === 'workshop' ? targets.data?.workshops : [];
 
   const rows = (data || []).filter(r => (!f.status || r.status === f.status) && (mess ? !f.messOption || sameId(r.messOption, f.messOption) : (!f.kind || r.kind === f.kind) && (!f.targetId || sameId(r.targetId, f.targetId))));
@@ -33,8 +36,12 @@ export default function RegTable({ mess = false }) {
   return (
     <div>
       <div className="row"><h2>{mess ? 'Mess registrations' : 'Registrations'}</h2>{!mess && <button className="btn-slash" onClick={exportCsv}>Export CSV</button>}</div>
+      {!mess && (
+        <div className="chips" role="tablist" aria-label="Registration type">
+          {KINDS.map(([k, l]) => <button key={k} role="tab" aria-selected={f.kind === k} className={`chip ${f.kind === k ? 'on' : ''}`} onClick={() => setKind(k)}>{l}</button>)}
+        </div>
+      )}
       <div className="filters">
-        {!mess && <label>Kind <select value={f.kind} onChange={set('kind')}><option value="">All</option><option>event</option><option>workshop</option></select></label>}
         {!mess && f.kind && <label>Target <select value={f.targetId} onChange={set('targetId')}><option value="">All</option>{(opts || []).map(o => <option key={o.id} value={o.id}>{o.name || o.title}</option>)}</select></label>}
         {mess && <label>Mess <select value={f.messOption} onChange={set('messOption')}><option value="">All</option>{(targets.data?.messOptions || []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>}
         <label>Status <select value={f.status} onChange={set('status')}><option value="">All</option><option>pending</option><option>approved</option><option>rejected</option></select></label>
