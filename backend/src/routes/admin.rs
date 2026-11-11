@@ -1,3 +1,4 @@
+use axum::extract::DefaultBodyLimit;
 use axum::middleware;
 use axum::routing::{delete, get, post, put};
 use axum::Router;
@@ -8,7 +9,12 @@ use crate::middleware::AppState;
 
 pub fn routes(state: AppState) -> Router {
     Router::new()
-        .route("/admin/uploads", post(upload_handler::upload_file))
+        // Axum's default multipart body limit is 2 MiB; uploads themselves are
+        // validated to 5 MiB by UploadService.
+        .route(
+            "/admin/uploads",
+            post(upload_handler::upload_file).layer(DefaultBodyLimit::max(6 * 1024 * 1024)),
+        )
         .route("/admin/fest", put(admin_handler::admin_fest))
         .route("/admin/payment-info", put(admin_handler::admin_payment_info))
         .route("/admin/events", post(admin_handler::admin_event_create))

@@ -5,12 +5,17 @@ import RichText from './RichText';
 import { getPath, toLocalInput, fromLocalInput, useAdminError } from './util';
 
 /** Uploads via POST /api/admin/uploads and stores the returned URL in the form. */
-function ImageField({ id, label, value, onChange }) {
+function ImageField({ id, label, value, onChange, onBusy }) {
   const [busy, setBusy] = useState(false);
   const fail = useAdminError();
   const pick = async f => {
     if (!f) return; setBusy(true);
-    try { onChange((await api.admin.upload(f)).url); } catch (e) { fail(e); } finally { setBusy(false); }
+    onBusy?.(true);
+    try {
+      const result = await api.admin.upload(f);
+      if (!result?.url) throw new Error('Image upload did not return a URL.');
+      onChange(result.url);
+    } catch (e) { fail(e); } finally { setBusy(false); onBusy?.(false); }
   };
   return (
     <div className="field">
@@ -38,13 +43,13 @@ function Prizes({ value, onChange }) {
 }
 
 /** Renders a schema: [{ path, label, type, options?, required? }]. Dotted paths edit nested objects. */
-export default function Fields({ fields, value, set }) {
+export default function Fields({ fields, value, set, onBusy }) {
   return fields.map(f => {
     const id = `af-${f.path}`, v = getPath(value, f.path) ?? '';
     const common = { id, required: f.required };
     return (
       <div key={f.path}>
-        {f.type === 'image' ? <ImageField id={id} label={f.label} value={v} onChange={x => set(f.path, x)} />
+        {f.type === 'image' ? <ImageField id={id} label={f.label} value={v} onChange={x => set(f.path, x)} onBusy={onBusy} />
         : f.type === 'prizes' ? <Prizes value={getPath(value, f.path)} onChange={x => set(f.path, x)} />
         : f.type === 'checkbox' ? <div className="field"><label htmlFor={id}><input id={id} type="checkbox" checked={!!v} onChange={e => set(f.path, e.target.checked)} /> {f.label}</label></div>
         : (

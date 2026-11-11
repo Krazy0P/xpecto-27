@@ -195,7 +195,7 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
-        rename_timestamp_fields(
+        rename_fields(
             &mut doc,
             &[
                 ("createdAt", "created_at"),
@@ -309,7 +309,7 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
-        rename_timestamp_fields(
+        rename_fields(
             &mut doc,
             &[
                 ("createdAt", "created_at"),
@@ -400,9 +400,14 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
-        rename_timestamp_fields(
+        rename_fields(
             &mut doc,
-            &[("createdAt", "created_at"), ("updatedAt", "updated_at")],
+            &[
+                ("createdAt", "created_at"),
+                ("updatedAt", "updated_at"),
+                ("logoUrl", "logo_url"),
+                ("websiteUrl", "website_url"),
+            ],
         );
         doc.insert("created_at", now);
         doc.insert("updated_at", now);
@@ -476,7 +481,7 @@ impl PublicService {
             updated_at: Some(now),
         })
         .map_err(|e| AppError::Internal(e.to_string()))?;
-        rename_timestamp_fields(
+        rename_fields(
             &mut doc,
             &[("createdAt", "created_at"), ("updatedAt", "updated_at")],
         );
@@ -510,7 +515,17 @@ impl PublicService {
         doc.insert("updated_at", now);
         self.db
             .sponsors
-            .update_one(doc! { "_id": oid }, doc! { "$set": doc }, None)
+            .update_one(
+                doc! { "_id": oid },
+                doc! {
+                    "$set": doc,
+                    "$unset": {
+                        "logoUrl": "",
+                        "websiteUrl": "",
+                    },
+                },
+                None,
+            )
             .await
             .map_err(|e| AppError::Internal(e.to_string()))?;
         let doc = self
@@ -718,7 +733,7 @@ fn slugify(s: &str) -> String {
         .join("-")
 }
 
-fn rename_timestamp_fields(doc: &mut Document, fields: &[(&str, &str)]) {
+fn rename_fields(doc: &mut Document, fields: &[(&str, &str)]) {
     for (camel_case, snake_case) in fields {
         if let Some(value) = doc.remove(*camel_case) {
             doc.insert(*snake_case, value);
@@ -740,7 +755,7 @@ fn parse_iso(s: Option<&str>) -> Option<bson::DateTime> {
 
 #[cfg(test)]
 mod tests {
-    use super::rename_timestamp_fields;
+    use super::rename_fields;
     use crate::models::sponsor::Sponsor;
     use bson::{doc, DateTime};
 
@@ -758,15 +773,24 @@ mod tests {
         })
         .unwrap();
 
-        rename_timestamp_fields(
+        rename_fields(
             &mut document,
-            &[("createdAt", "created_at"), ("updatedAt", "updated_at")],
+            &[
+                ("createdAt", "created_at"),
+                ("updatedAt", "updated_at"),
+                ("logoUrl", "logo_url"),
+                ("websiteUrl", "website_url"),
+            ],
         );
         document.insert("created_at", timestamp);
         document.insert("updated_at", timestamp);
 
         assert!(!document.contains_key("createdAt"));
         assert!(!document.contains_key("updatedAt"));
+        assert!(!document.contains_key("logoUrl"));
+        assert!(!document.contains_key("websiteUrl"));
+        assert!(document.contains_key("logo_url"));
+        assert!(document.contains_key("website_url"));
         assert_eq!(
             bson::from_document::<Sponsor>(document).unwrap().created_at,
             Some(timestamp)

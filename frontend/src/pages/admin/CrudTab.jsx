@@ -11,12 +11,15 @@ export default function CrudTab({ title, load, resource, fields, blank, label, c
   const fail = useAdminError();
   const [form, setForm] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [uploads, setUploads] = useState(0);
 
   // Deep link from the public-page pencil (?id=)
   useEffect(() => { const it = data && initialId && data.find(x => String(x.id) === String(initialId)); if (it) setForm(structuredClone(it)); }, [data, initialId]);
 
   const save = async e => {
-    e.preventDefault(); setBusy(true);
+    e.preventDefault();
+    if (uploads > 0) return;
+    setBusy(true);
     try {
       const { id, ...body } = form; const out = prepare(body);
       if (id !== undefined) await resource.update(id, out); else await resource.create(out);
@@ -35,8 +38,8 @@ export default function CrudTab({ title, load, resource, fields, blank, label, c
       {form && (
         <form className="manga-panel" onSubmit={save}>
           <h3>{form.id !== undefined ? 'Edit' : 'New'} {title}</h3>
-          <Fields fields={fields} value={form} set={(p, v) => setForm(f => setPath(f, p, v))} />
-          <div className="row"><button type="button" className="link-btn" onClick={() => setForm(null)}>Cancel</button><button className="btn-slash" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button></div>
+          <Fields fields={fields} value={form} set={(p, v) => setForm(f => setPath(f, p, v))} onBusy={active => setUploads(n => n + (active ? 1 : -1))} />
+          <div className="row"><button type="button" className="link-btn" disabled={busy || uploads > 0} onClick={() => setForm(null)}>Cancel</button><button className="btn-slash" disabled={busy || uploads > 0}>{busy ? 'Saving…' : uploads > 0 ? 'Uploading…' : 'Save'}</button></div>
         </form>
       )}
       {!data ? <div className="skeleton" style={{ height: 100 }} /> : data.length === 0 ? <p>Nothing here yet.</p> : (
