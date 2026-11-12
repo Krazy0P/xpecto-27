@@ -1,3 +1,4 @@
+use axum::extract::DefaultBodyLimit;
 use axum::middleware;
 use axum::routing::{get, post};
 use axum::Router;
@@ -8,7 +9,11 @@ use crate::middleware::AppState;
 
 pub fn routes(state: AppState) -> Router {
     Router::new()
-        .route("/mess/registrations", post(registration_handler::create_mess_registration))
+        .route(
+            "/mess/registrations",
+            post(registration_handler::create_mess_registration)
+                .layer(DefaultBodyLimit::max(6 * 1024 * 1024)),
+        )
         .route("/mess/registrations/me", get(registration_handler::my_mess_registrations))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
         .with_state(state)
