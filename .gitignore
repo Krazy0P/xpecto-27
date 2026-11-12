@@ -3,3 +3,38 @@ target/
 .env
 .kilo
 backend/backend/uploads/*
+
+
+
+
+
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Backend environment
+backend/.env
+
+# Uploaded private files
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Rust build output
+target/
+
+
+
+
+
+
+
+# Local authentication cookies
+cookies.txt
+
+
+
+
+# macOS system files
+.DS_Store

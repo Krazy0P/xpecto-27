@@ -3,6 +3,7 @@ use axum::http::header;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
+use mongodb::bson::{doc, oid::ObjectId};
 
 use crate::database::oid_from_hex;
 use crate::middleware::AppState;
@@ -240,47 +241,79 @@ pub async fn admin_registrations(
     Ok(Json(json!({ "registrations": regs })))
 }
 
-pub async fn admin_create_registration(
+pub async fn admin_create_registrations (
     State(state): State<AppState>,
     Extension(_current_user): Extension<CurrentUser>,
     axum::extract::Json(body): axum::extract::Json<serde_json::Value>,
 ) -> Result<impl IntoResponse, crate::errors::AppError> {
     require(&_current_user)?;
+
+    // Extracting fields
+    let participant_name = body.get("participantName").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let participant_email = body.get("participantEmail").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let participant_phone = body.get("participantPhone").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let college = body.get("college").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let visit_days = body.get("visitDays").and_then(|v| v.as_i64()).unwrap_or(0);
+    let competition_ids: Vec<String> = body
+        .get("competitions")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+
+    // Validate
+    if participant_name.trim().is_empty()
+        || participant_email.trim().is_empty()
+        || college.trim().is_empty()
+        || visit_days < 1
+        || competition_ids.is_empty()
+    {
+        return Err(AppError::Validation(
+            "Participant name, email, college, at least 1 visit day and at least one competition are required.".into(),
+        ));
+    }
+
+    // Resolve the participant's user id from their email (email is uniquely indexed).
+    let user_doc = state
+        .db
+        .users
+        .find_one(doc! { "email": participant_email.trim() }, None)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?
+        .ok_or_else(|| {
+            return AppError::Validation("No user account exists with this email. Ask them to sign up first.".into())
+        })?;
+
+    let user_id = user_doc.get_object_id("_id").unwrap_or_default();
     let svc = RegistrationService::new(state.db.clone());
-    let kind = body.get("kind").and_then(|v| v.as_str()).unwrap_or("event").to_string();
-    let target_id_s = body.get("targetId").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let target_name = body.get("targetName").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let transaction_id = body.get("transactionId").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let screenshot_url = body.get("screenshotUrl").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let amount = body.get("amount").and_then(|v| v.as_i64()).unwrap_or(0);
-    let team_name = body.get("teamName").and_then(|v| v.as_str()).map(|s| s.to_string());
-    let team_members: Vec<crate::models::registration::TeamMemberReg> = body
-        .get("teamMembers")
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
-        .unwrap_or_default();
+    let mut created = Vec::new();
 
-    let target_id = oid_from_hex(&target_id_s).map_err(|_| AppError::Validation("Invalid targetId".into()))?;
-    let user_id = body
-        .get("user")
-        .and_then(|v| v.get("id"))
-        .and_then(|v| v.as_str())
-        .and_then(|s| oid_from_hex(s).ok())
-        .unwrap_or_default();
+    // One registration per selected competition (frontend sends multiple target ids)
+    for comp_id_s in &competition_ids {
+        let target_id = oid_from_hex(comp_id_s).map_err(|_| AppError::Validation("Invalid competition id".into()))?;
+        let target_name = state
+            .db
+            .events
+            .find_one(doc! { "_id": target_id }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?
+            .and_then(|ev| ev.get_str("name").ok().map(str::to_string))
+            .unwrap_or_default();
 
-    let reg = svc.create_event_registration(
-        &user_id,
-        &kind,
-        &target_id,
-        &target_name,
-        &transaction_id,
-        &screenshot_url,
-        amount,
-        team_name,
-        team_members,
-        "",
-    ).await?;
-
-    Ok(Json(json!({ "registration": reg })))
+        let reg = svc.admin_create_event_registration(&user_id, &target_id, &target_name).await?;
+        created.push(reg);
+    }
+    Ok(Json(json!({
+        "registration": created.first(),
+        "participantName": participant_name,
+        "participantPhone": participant_phone,
+        "college": college,
+        "visitDays": visit_days,
+        "competitions": created,
+    })))
 }
 
 pub async fn admin_decide_registration(
