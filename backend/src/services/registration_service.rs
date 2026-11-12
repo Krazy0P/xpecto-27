@@ -170,6 +170,76 @@ impl RegistrationService {
         }
     }
 
+    /// Admin-created registration: no payment proof, approved immediately.
+    pub async fn admin_create_event_registration(
+        &self,
+        user_id: &ObjectId,
+        target_id: &ObjectId,
+        target_name: &str,
+    ) -> AppResult<Registration> {
+        let _ = self
+            .db
+            .events
+            .find_one(doc! { "_id": target_id }, None)
+            .await
+            .map_err(|e| AppError::Internal(e.to_string()))?
+            .ok_or_else(|| AppError::NotFound("Event not found.".into()))?;
+        let now = now();
+        let doc = doc! {
+            "kind": "event",
+            "user_id": user_id,
+            "target_id": target_id,
+            "target_name": target_name,
+            "transaction_id": "",
+            "screenshot_url": "",
+            "status": "approved",
+            "amount": 0,
+            "payment_method": "",
+            "team_name": None::<String>,
+            "team_members": Vec::<bson::Document>::new(),
+            "created_at": now,
+            "updated_at": now,
+        };
+        let result = self
+            .db
+            .reg_coll("event")
+            .insert_one(doc, None)
+            .await
+            .map_err(|e| {
+                if is_duplicate_key(&e) {
+                    AppError::Conflict("You are already registered for this.".into())
+                } else {
+                    AppError::Internal(e.to_string())
+                }
+            })?;
+        let id = result.inserted_id.as_object_id().unwrap_or_default();
+        info!("admin registration: user={} target={}", user_id, target_id);
+
+        Ok(Registration {
+            id: Some(id),
+            kind: "event".to_string(),
+            user_id: *user_id,
+            target_id: Some(*target_id),
+            target_name: target_name.to_string(),
+            mess_option: None,
+            mess_name: String::new(),
+            transaction_id: String::new(),
+            screenshot_url: String::new(),
+            status: "approved".to_string(),
+            amount: 0,
+            team_name: None,
+            team_members: Vec::new(),
+            rejection_reason: None,
+            confirmation_qr_url: None,
+            visit_days: 0,
+            competition_names: Vec::new(),
+            payment_method: String::new(),
+            created_at: Some(now),
+            updated_at: Some(now),
+        })
+    }
+
+
     /// Create a mess registration.
     pub async fn create_mess_registration(
         &self,
